@@ -47,6 +47,7 @@
     .nav-links { display:flex;gap:2.5rem;list-style:none;align-items:center; }
     .nav-links a { font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;color:var(--mid);transition:color .25s; }
     .nav-links a:hover { color:var(--ink); }
+    .nav-active { color:var(--ink) !important; }
     .nav-btn { font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--white);background:var(--ink);padding:.65rem 1.5rem;transition:background .25s; }
     .nav-btn:hover { background:var(--charcoal); }
 
@@ -396,15 +397,10 @@
 <nav id="nav">
   <div class="nav-logo"><a href="index.html"><img src="illham-logo.png" alt="illham"/></a></div>
   <ul class="nav-links">
-    <li class="nav-dropdown">
-      <a href="#">Koleksi</a>
-      <div class="dropdown-menu">
-        <a href="index.html#shop">Koleksi</a>
-        <a href="gallery.html" class="active">Gallery</a>
-      </div>
-    </li>
+    <li><a href="index.html#shop">Koleksi</a></li>
     <li><a href="index.html#about">About</a></li>
     <li><a href="index.html#process">Process</a></li>
+    <li><a href="gallery.html" class="nav-active">Gallery</a></li>
     <li><a href="index.html#contact">Contact</a></li>
   </ul>
   <a href="https://wa.me/60137287182" class="nav-btn" target="_blank">Tempah Sekarang</a>
