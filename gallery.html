@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Galeri karya illham — Bookmark lukisan tangan dan potret custom buatan Malaysia."/>
+  <title>Gallery — illham.art</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:    #F5F0E8;
+      --blush:    #E8D5C4;
+      --sage:     #C4CCBA;
+      --dusty:    #B8C4CC;
+      --mauve:    #C4B0B8;
+      --ink:      #2C2420;
+      --charcoal: #4A3F38;
+      --mid:      #9A8E84;
+      --light:    #EDE8E0;
+      --white:    #FAF8F5;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    #cur  { width:7px;height:7px;background:var(--ink);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s; }
+    #ring { width:28px;height:28px;border:1px solid var(--charcoal);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.4;transition:width .3s,height .3s; }
+
+    /* NAV */
+    nav {
+      position:fixed;top:0;left:0;right:0;z-index:200;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1.8rem 5rem;
+      transition:background .4s,border-color .4s;
+    }
+    nav.scrolled { background:rgba(250,248,245,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--light); }
+    .nav-logo img { height:34px;mix-blend-mode:multiply; }
+    .nav-links { display:flex;gap:2.5rem;list-style:none;align-items:center; }
+    .nav-links a { font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;color:var(--mid);transition:color .25s; }
+    .nav-links a:hover { color:var(--ink); }
+    .nav-btn { font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--white);background:var(--ink);padding:.65rem 1.5rem;transition:background .25s; }
+    .nav-btn:hover { background:var(--charcoal); }
+
+    /* DROPDOWN */
+    .nav-dropdown { position:relative; }
+    .nav-dropdown > a { display:flex;align-items:center;gap:.35rem; }
+    .nav-dropdown > a::after { content:'▾';font-size:.55rem;opacity:.6;transition:transform .25s; }
+    .nav-dropdown:hover > a::after { transform:rotate(180deg); }
+    .dropdown-menu {
+      position:absolute;top:calc(100% + .8rem);left:50%;transform:translateX(-50%);
+      background:var(--white);border:1px solid var(--light);
+      min-width:140px;padding:.4rem 0;
+      opacity:0;pointer-events:none;
+      transition:opacity .2s,transform .2s;
+      transform:translateX(-50%) translateY(-6px);
+      box-shadow:0 8px 24px rgba(44,36,32,.08);
+    }
+    .nav-dropdown:hover .dropdown-menu {
+      opacity:1;pointer-events:auto;
+      transform:translateX(-50%) translateY(0);
+    }
+    .dropdown-menu a {
+      display:block;padding:.6rem 1.2rem;
+      font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--mid);text-decoration:none;
+      transition:background .2s,color .2s;
+      white-space:nowrap;
+    }
+    .dropdown-menu a:hover { background:var(--cream);color:var(--ink); }
+    .dropdown-menu a.active { color:var(--ink);font-weight:500; }
+
+    /* PAGE HEADER */
+    .page-header {
+      padding: 9rem 5rem 4rem;
+      background: var(--cream);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content:'';position:absolute;inset:0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(196,176,184,.25) 0%, transparent 60%);
+    }
+    .page-header .ph-kicker {
+      font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;color:var(--mid);
+      margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:.8rem;
+      opacity:0;animation:up .7s .1s forwards;
+    }
+    .page-header .ph-kicker span { width:24px;height:1px;background:var(--mauve);display:inline-block; }
+    .page-header h1 {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(2.4rem,5vw,4rem);
+      font-weight:400;line-height:1.15;
+      opacity:0;animation:up .8s .25s forwards;
+    }
+    .page-header h1 em { font-style:italic;color:var(--charcoal); }
+    .page-header p {
+      margin-top:1.2rem;font-size:.86rem;font-weight:300;
+      color:var(--mid);max-width:500px;margin-inline:auto;line-height:1.9;
+      opacity:0;animation:up .8s .4s forwards;
+    }
+
+    /* FILTER TABS */
+    .filter-bar {
+      display:flex;justify-content:center;align-items:center;gap:.6rem;
+      padding:2.5rem 5rem;flex-wrap:wrap;
+      border-bottom:1px solid var(--light);
+    }
+    .filter-btn {
+      font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+      padding:.55rem 1.3rem;border:1px solid var(--light);
+      background:transparent;color:var(--mid);
+      cursor:none;transition:all .25s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background:var(--ink);color:var(--white);border-color:var(--ink);
+    }
+
+    /* CAROUSEL SECTION */
+    .carousel-section {
+      padding: 4rem 5rem 6rem;
+      background: var(--white);
+    }
+    .carousel-label {
+      font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--mid);
+      margin-bottom:.6rem;
+    }
+    .carousel-title {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(1.6rem,2.5vw,2.2rem);
+      font-weight:400;margin-bottom:3rem;
+    }
+    .carousel-title em { font-style:italic; }
+
+    .carousel-wrapper {
+      position:relative;overflow:hidden;
+      border-radius:2px;
+      background:var(--cream);
+    }
+
+    .carousel-track {
+      display:flex;
+      transition:transform .6s cubic-bezier(.4,0,.2,1);
+    }
+
+    .carousel-slide {
+      min-width:100%;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      align-items:stretch;
+      min-height:520px;
+    }
+
+    /* Slide visual */
+    .slide-visual {
+      position:relative;overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .slide-visual .ph-bg {
+      width:100%;height:100%;
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    /* Placeholder colour themes per slide */
+    .ph-blush  { background:linear-gradient(145deg,#EAD8C8,#C8A888); }
+    .ph-sage   { background:linear-gradient(145deg,#C8D0BC,#A0AC90); }
+    .ph-dusty  { background:linear-gradient(145deg,#C0CCD8,#8898A8); }
+    .ph-mauve  { background:linear-gradient(145deg,#D4C4CC,#B0909C); }
+    .ph-warm   { background:linear-gradient(145deg,#E0D0B8,#C0A080); }
+    .ph-forest { background:linear-gradient(145deg,#B8C8B0,#88A080); }
+    .ph-dusk   { background:linear-gradient(145deg,#C8C0D4,#9888A8); }
+    .ph-clay   { background:linear-gradient(145deg,#D8C4B4,#B09878); }
+
+    .slide-visual svg { opacity:.35; }
+
+    .ph-badge {
+      position:absolute;top:1.5rem;left:1.5rem;
+      font-size:.55rem;letter-spacing:.22em;text-transform:uppercase;
+      background:rgba(44,36,32,.55);color:#fff;
+      padding:.35rem .75rem;backdrop-filter:blur(4px);
+    }
+
+    /* Slide info */
+    .slide-info {
+      padding:4rem;
+      display:flex;flex-direction:column;justify-content:center;
+      background:var(--white);
+    }
+    .slide-count {
+      font-family:'Playfair Display',serif;
+      font-size:3.5rem;font-weight:400;color:var(--light);
+      line-height:1;margin-bottom:1.5rem;
+      user-select:none;
+    }
+    .slide-cat {
+      font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;
+      color:var(--mauve);margin-bottom:.8rem;
+    }
+    .slide-name {
+      font-family:'Playfair Display',serif;
+      font-size:clamp(1.4rem,2.2vw,2rem);
+      font-weight:400;line-height:1.2;margin-bottom:1rem;
+    }
+    .slide-name em { font-style:italic; }
+    .slide-desc {
+      font-size:.83rem;font-weight:300;color:var(--mid);
+      line-height:1.9;margin-bottom:2rem;max-width:300px;
+    }
+    .slide-price {
+      font-family:'Playfair Display',serif;font-size:1.2rem;
+      margin-bottom:1.8rem;color:var(--charcoal);
+    }
+    .slide-cta {
+      display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;
+    }
+    .btn-fill {
+      background:var(--ink);color:var(--white);
+      padding:.85rem 2rem;font-family:'DM Sans',sans-serif;
+      font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+      border:none;cursor:none;text-decoration:none;
+      display:inline-block;transition:background .25s,transform .2s;
+    }
+    .btn-fill:hover { background:var(--charcoal);transform:translateY(-2px); }
+    .btn-ghost {
+      font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--mid);text-decoration:none;
+      border-bottom:1px solid var(--blush);padding-bottom:2px;
+      transition:color .25s,border-color .25s;cursor:none;
+    }
+    .btn-ghost:hover { color:var(--ink);border-color:var(--ink); }
+
+    /* CAROUSEL CONTROLS */
+    .carousel-controls {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1.8rem 0 0;
+    }
+    .carousel-dots {
+      display:flex;gap:.5rem;align-items:center;
+    }
+    .dot {
+      width:6px;height:6px;border-radius:50%;
+      background:var(--blush);border:none;cursor:none;
+      transition:all .3s;padding:0;
+    }
+    .dot.active { width:22px;border-radius:3px;background:var(--ink); }
+    .carousel-arrows { display:flex;gap:.8rem; }
+    .arrow-btn {
+      width:44px;height:44px;border:1px solid var(--light);
+      background:transparent;cursor:none;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .25s;color:var(--mid);
+    }
+    .arrow-btn:hover { background:var(--ink);color:var(--white);border-color:var(--ink); }
+    .arrow-btn svg { width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round; }
+
+    /* PROGRESS BAR */
+    .carousel-progress {
+      height:2px;background:var(--light);margin-top:1.2rem;
+      position:relative;overflow:hidden;
+    }
+    .carousel-progress-bar {
+      height:100%;background:var(--ink);
+      transition:width .6s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* GRID SECTION */
+    .grid-section {
+      padding:5rem;
+      background:var(--cream);
+    }
+    .grid-section .sec-head {
+      display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem;
+    }
+    .sec-label { font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--mid);margin-bottom:.6rem; }
+    .sec-title { font-family:'Playfair Display',serif;font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:400;line-height:1.2; }
+    .sec-title em { font-style:italic; }
+    .sec-link { font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mid);text-decoration:none;border-bottom:1px solid var(--light);padding-bottom:2px;transition:color .25s,border-color .25s; }
+    .sec-link:hover { color:var(--ink);border-color:var(--ink); }
+
+    .art-grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:1.5rem;
+    }
+    .art-card {
+      cursor:none;
+      opacity:0;transform:translateY(20px);
+      transition:opacity .6s ease,transform .6s ease;
+    }
+    .art-card.visible { opacity:1;transform:none; }
+    .art-img {
+      position:relative;overflow:hidden;margin-bottom:1rem;
+    }
+    .art-img-inner {
+      width:100%;aspect-ratio:3/4;
+      display:flex;align-items:center;justify-content:center;
+      transition:transform .5s ease;
+    }
+    .art-card:hover .art-img-inner { transform:scale(1.04); }
+    .art-tag { font-size:.55rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mid);margin-bottom:.35rem; }
+    .art-name { font-family:'Playfair Display',serif;font-size:1rem;font-weight:400;margin-bottom:.3rem; }
+    .art-desc { font-size:.76rem;font-weight:300;color:var(--mid);line-height:1.7; }
+
+    /* FOOTER */
+    footer { background:var(--ink);color:var(--white);padding:4rem 5rem 2.5rem; }
+    .foot-top { display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:4rem;margin-bottom:3.5rem;padding-bottom:3.5rem;border-bottom:1px solid #251f1a; }
+    .foot-brand img { height:32px;filter:invert(1);opacity:.85;margin-bottom:.8rem; }
+    .foot-brand p { font-size:.76rem;font-weight:300;color:#4a4038;line-height:1.8;max-width:200px; }
+    .foot-col h5 { font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:#3a3028;margin-bottom:1.2rem; }
+    .foot-col ul { list-style:none; }
+    .foot-col li { margin-bottom:.6rem; }
+    .foot-col a { font-size:.8rem;font-weight:300;color:#7a6e66;text-decoration:none;transition:color .25s; }
+    .foot-col a:hover { color:#C4CCBA; }
+    .foot-bot { display:flex;justify-content:space-between;align-items:center; }
+    .foot-bot p { font-size:.65rem;color:#2a2018;letter-spacing:.06em; }
+    .foot-soc { display:flex;gap:2rem; }
+    .foot-soc a { font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#2a2018;text-decoration:none;transition:color .25s; }
+    .foot-soc a:hover { color:#C4CCBA; }
+
+    /* KEYFRAMES */
+    @keyframes up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    /* WHATSAPP FLOAT */
+    .wa-float {
+      position:fixed;
+      bottom:2rem;
+      right:2rem;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:58px;
+      height:58px;
+      border-radius:50%;
+      background:#25D366;
+      box-shadow:0 4px 20px rgba(37,211,102,.45);
+      text-decoration:none;
+      transition:transform .25s ease, box-shadow .25s ease;
+    }
+    .wa-float:hover {
+      transform:scale(1.12) translateY(-3px);
+      box-shadow:0 8px 28px rgba(37,211,102,.6);
+    }
+    .wa-float svg { width:30px;height:30px;fill:#fff; }
+    .wa-float::before {
+      content:'';
+      position:absolute;
+      width:100%;height:100%;
+      border-radius:50%;
+      background:#25D366;
+      opacity:.4;
+      animation:wa-pulse 2s ease-out infinite;
+    }
+    @keyframes wa-pulse {
+      0%   { transform:scale(1);   opacity:.4; }
+      70%  { transform:scale(1.55);opacity:0; }
+      100% { transform:scale(1.55);opacity:0; }
+    }
+
+    /* MOBILE */
+    @media(max-width:900px){
+      nav{padding:1.4rem 1.8rem;}
+      .nav-links,.nav-btn{display:none;}
+      .page-header{padding:7rem 2rem 3rem;}
+      .filter-bar{padding:2rem 1.5rem;}
+      .carousel-section{padding:3rem 1.5rem 4rem;}
+      .carousel-slide{grid-template-columns:1fr;min-height:auto;}
+      .slide-visual{min-height:280px;}
+      .slide-info{padding:2.5rem 2rem;}
+      .grid-section{padding:3rem 1.5rem;}
+      .art-grid{grid-template-columns:1fr 1fr;}
+      footer{padding:3rem 1.5rem 2rem;}
+      .foot-top{grid-template-columns:1fr 1fr;gap:2rem;}
+      .foot-bot{flex-direction:column;gap:1rem;}
+      .wa-float{bottom:1.4rem;right:1.4rem;width:52px;height:52px;}
+      .wa-float svg{width:26px;height:26px;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo"><a href="index.html"><img src="illham-logo.png" alt="illham"/></a></div>
+  <ul class="nav-links">
+    <li class="nav-dropdown">
+      <a href="#">Koleksi</a>
+      <div class="dropdown-menu">
+        <a href="index.html#shop">Koleksi</a>
+        <a href="gallery.html" class="active">Gallery</a>
+      </div>
+    </li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#process">Process</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <a href="https://wa.me/60137287182" class="nav-btn" target="_blank">Tempah Sekarang</a>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="ph-kicker"><span></span>illham · Galeri Karya<span></span></div>
+  <h1>Setiap karya,<br><em>sebuah cerita.</em></h1>
+  <p>Koleksi bookmark lukisan tangan dan potret custom — dicipta dengan sabar, dibuat dengan jiwa.</p>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">Semua</button>
+  <button class="filter-btn" data-filter="bookmark">Bookmark</button>
+  <button class="filter-btn" data-filter="portrait">Portrait</button>
+</div>
+
+<!-- CAROUSEL SECTION -->
+<section class="carousel-section">
+  <p class="carousel-label">Karya Pilihan</p>
+  <h2 class="carousel-title">Sorotan <em>Terkini</em></h2>
+
+  <div class="carousel-wrapper">
+    <div class="carousel-track" id="carouselTrack">
+
+      <!-- Slide 1 -->
+      <div class="carousel-slide">
+        <div class="slide-visual">
+          <div class="ph-bg ph-blush">
+            <svg width="80" height="136" viewBox="0 0 80 136" fill="none">
+              <path d="M8 4h64v128L40 108 8 132V4z" fill="white"/>
+              <circle cx="40" cy="50" r="18" stroke="white" stroke-width="1.2" fill="none"/>
+              <path d="M26 50 Q40 34 54 50 Q40 66 26 50z" fill="white"/>
+              <path d="M33 70 Q40 62 47 70" stroke="white" stroke-width="1" fill="none"/>
+            </svg>
+            <span class="ph-badge">Bookmark</span>
+          </div>
+        </div>
+        <div class="slide-info">
+          <div class="slide-count">01</div>
+          <p class="slide-cat">Bookmark · Watercolour</p>
+          <h2 class="slide-name">Floral Series I —<br><em>Hibiscus Bloom</em></h2>
+          <p class="slide-desc">Lukisan bunga raya dengan warna watercolour lembut. Dibuat di atas kad 300gsm. Sempurna untuk pembaca yang menghargai keindahan kecil.</p>
+          <p class="slide-price">RM 25</p>
+          <div class="slide-cta">
+            <a href="https://wa.me/60137287182" class="btn-fill" target="_blank">Tempah via WhatsApp</a>
+            <a href="index.html#shop" class="btn-ghost">Lihat Koleksi</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="carousel-slide">
+        <div class="slide-visual">
+          <div class="ph-bg ph-dusty">
+            <svg width="100" height="110" viewBox="0 0 100 110" fill="none">
+              <rect x="6" y="6" width="88" height="98" rx="2" fill="white"/>
+              <circle cx="50" cy="46" r="26" stroke="white" stroke-width="1.2" fill="none"/>
+              <ellipse cx="50" cy="36" rx="13" ry="16" fill="white"/>
+              <path d="M30 70 Q50 62 70 70" stroke="white" stroke-width="1.2" fill="none"/>
+            </svg>
+            <span class="ph-badge">Portrait</span>
+          </div>
+        </div>
+        <div class="slide-info">
+          <div class="slide-count">02</div>
+          <p class="slide-cat">Portrait · Pensil & Dakwat</p>
+          <h2 class="slide-name">Custom Portrait —<br><em>Kenangan Abadi</em></h2>
+          <p class="slide-desc">Potret lukisan tangan dari gambar kau. Pensil graphite atau dakwat. Setiap garis dilukis dengan penuh perhatian untuk menangkap jiwa subjek.</p>
+          <p class="slide-price">RM 180</p>
+          <div class="slide-cta">
+            <a href="https://wa.me/60137287182" class="btn-fill" target="_blank">Tempah via WhatsApp</a>
+            <a href="index.html#shop" class="btn-ghost">Lihat Koleksi</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="carousel-slide">
+        <div class="slide-visual">
+          <div class="ph-bg ph-sage">
+            <svg width="120" height="136" viewBox="0 0 120 136" fill="none">
+              <path d="M6 4h36v128L24 108 6 132V4z" fill="white"/>
+              <path d="M46 4h36v128L64 108 46 132V4z" fill="white" opacity=".75"/>
+              <path d="M86 4h28v128L100 108 86 132V4z" fill="white" opacity=".5"/>
+            </svg>
+            <span class="ph-badge">Bookmark</span>
+          </div>
+        </div>
+        <div class="slide-info">
+          <div class="slide-count">03</div>
+          <p class="slide-cat">Bookmark · Set Hadiah</p>
+          <h2 class="slide-name">Forest & Fog —<br><em>Set of 3</em></h2>
+          <p class="slide-desc">Tiga bookmark botanical bertema hutan dan kabus pagi. Hijau bumi, tenang jiwa. Hadiah sempurna untuk mereka yang cinta alam dan buku.</p>
+          <p class="slide-price">RM 65</p>
+          <div class="slide-cta">
+            <a href="https://wa.me/60137287182" class="btn-fill" target="_blank">Tempah via WhatsApp</a>
+            <a href="index.html#shop" class="btn-ghost">Lihat Koleksi</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4 -->
+      <div class="carousel-slide">
+        <div class="slide-visual">
+          <div class="ph-bg ph-mauve">
+            <svg width="80" height="136" viewBox="0 0 80 136" fill="none">
+              <path d="M8 4h64v128L40 108 8 132V4z" fill="white"/>
+              <path d="M22 46 Q40 28 58 46 Q40 64 22 46z" fill="white"/>
+              <path d="M28 66 Q40 58 52 66 Q40 74 28 66z" fill="white" opacity=".6"/>
+              <circle cx="40" cy="88" r="6" fill="white" opacity=".4"/>
+            </svg>
+            <span class="ph-badge">Bookmark</span>
+          </div>
+        </div>
+        <div class="slide-info">
+          <div class="slide-count">04</div>
+          <p class="slide-cat">Bookmark · Floral</p>
+          <h2 class="slide-name">Mauve Petal —<br><em>Rose Series</em></h2>
+          <p class="slide-desc">Koleksi mawar dengan palet warna lavender dan dusty pink. Lembut seperti petang minggu, indah seperti kata-kata yang tak terucap.</p>
+          <p class="slide-price">RM 28</p>
+          <div class="slide-cta">
+            <a href="https://wa.me/60137287182" class="btn-fill" target="_blank">Tempah via WhatsApp</a>
+            <a href="index.html#shop" class="btn-ghost">Lihat Koleksi</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5 -->
+      <div class="carousel-slide">
+        <div class="slide-visual">
+          <div class="ph-bg ph-warm">
+            <svg width="100" height="110" viewBox="0 0 100 110" fill="none">
+              <rect x="6" y="6" width="88" height="98" rx="2" fill="white"/>
+              <circle cx="50" cy="44" r="24" stroke="white" stroke-width="1.2" fill="none"/>
+              <ellipse cx="50" cy="35" rx="11" ry="14" fill="white"/>
+              <path d="M32 65 Q50 58 68 65" stroke="white" stroke-width="1.2" fill="none"/>
+              <path d="M38 75 Q50 70 62 75" stroke="white" stroke-width=".8" fill="none" opacity=".6"/>
+            </svg>
+            <span class="ph-badge">Portrait</span>
+          </div>
+        </div>
+        <div class="slide-info">
+          <div class="slide-count">05</div>
+          <p class="slide-cat">Portrait · Pasangan</p>
+          <h2 class="slide-name">Couple Portrait —<br><em>Cinta dalam Garis</em></h2>
+          <p class="slide-desc">Potret pasangan dilukis tangan dengan dakwat halus. Hadiah perkahwinan, anniversary, atau sekadar merakam momen yang tak ternilai harganya.</p>
+          <p class="slide-price">RM 280</p>
+          <div class="slide-cta">
+            <a href="https://wa.me/60137287182" class="btn-fill" target="_blank">Tempah via WhatsApp</a>
+            <a href="index.html#shop" class="btn-ghost">Lihat Koleksi</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6 -->
+      <div class="carousel-slide">
+        <div class="slide-visual">
+          <div class="ph-bg ph-dusk">
+            <svg width="80" height="136" viewBox="0 0 80 136" fill="none">
+              <path d="M8 4h64v128L40 108 8 132V4z" fill="white"/>
+              <path d="M20 52 Q40 30 60 52 Q40 74 20 52z" fill="white"/>
+              <circle cx="40" cy="52" r="10" stroke="white" stroke-width="1" fill="none"/>
+              <path d="M28 76 Q40 68 52 76" stroke="white" stroke-width="1" fill="none"/>
+            </svg>
+            <span class="ph-badge">Bookmark</span>
+          </div>
+        </div>
+        <div class="slide-info">
+          <div class="slide-count">06</div>
+          <p class="slide-cat">Bookmark · Night Series</p>
+          <h2 class="slide-name">Midnight Garden —<br><em>Dusk Collection</em></h2>
+          <p class="slide-desc">Koleksi senja dan malam — ungu gelap, biru kabur, dan kilau bintang. Untuk pembaca yang suka membaca dengan cahaya lampu kecil di malam yang tenang.</p>
+          <p class="slide-price">RM 30</p>
+          <div class="slide-cta">
+            <a href="https://wa.me/60137287182" class="btn-fill" target="_blank">Tempah via WhatsApp</a>
+            <a href="index.html#shop" class="btn-ghost">Lihat Koleksi</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /carousel-track -->
+  </div><!-- /carousel-wrapper -->
+
+  <!-- Controls -->
+  <div class="carousel-controls">
+    <div class="carousel-dots" id="carouselDots"></div>
+    <div class="carousel-arrows">
+      <button class="arrow-btn" id="prevBtn" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="arrow-btn" id="nextBtn" aria-label="Next">
+        <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="carousel-progress"><div class="carousel-progress-bar" id="progressBar"></div></div>
+
+</section>
+
+<!-- GRID GALLERY -->
+<section class="grid-section" id="grid">
+  <div class="sec-head">
+    <div>
+      <p class="sec-label">Semua Karya</p>
+      <h2 class="sec-title">Galeri <em>Lengkap</em></h2>
+    </div>
+    <a href="https://wa.me/60137287182" class="sec-link" target="_blank">Tempah Custom →</a>
+  </div>
+  <div class="art-grid" id="artGrid">
+
+    <div class="art-card" data-cat="bookmark">
+      <div class="art-img"><div class="art-img-inner ph-blush">
+        <svg width="48" height="82" viewBox="0 0 48 82" fill="none"><path d="M6 4h36v74L24 62 6 78V4z" fill="white" opacity=".25"/><circle cx="24" cy="30" r="10" stroke="white" stroke-width=".9" opacity=".4" fill="none"/></svg>
+      </div></div>
+      <p class="art-tag">Bookmark</p>
+      <p class="art-name">Hibiscus Bloom I</p>
+      <p class="art-desc">Watercolour · RM 25</p>
+    </div>
+
+    <div class="art-card" data-cat="portrait">
+      <div class="art-img"><div class="art-img-inner ph-dusty">
+        <svg width="62" height="78" viewBox="0 0 62 78" fill="none"><rect x="4" y="4" width="54" height="70" rx="2" fill="white" opacity=".15"/><circle cx="31" cy="32" r="16" stroke="white" stroke-width=".9" opacity=".3" fill="none"/><ellipse cx="31" cy="25" rx="8" ry="10" fill="white" opacity=".2"/></svg>
+      </div></div>
+      <p class="art-tag">Portrait</p>
+      <p class="art-name">Custom Portrait Solo</p>
+      <p class="art-desc">Pensil & Dakwat · RM 180</p>
+    </div>
+
+    <div class="art-card" data-cat="bookmark">
+      <div class="art-img"><div class="art-img-inner ph-sage">
+        <svg width="48" height="82" viewBox="0 0 48 82" fill="none"><path d="M6 4h36v74L24 62 6 78V4z" fill="white" opacity=".22"/><path d="M14 30 Q24 18 34 30 Q24 42 14 30z" fill="white" opacity=".3"/></svg>
+      </div></div>
+      <p class="art-tag">Bookmark</p>
+      <p class="art-name">Forest & Fog — Set 3</p>
+      <p class="art-desc">Watercolour · RM 65</p>
+    </div>
+
+    <div class="art-card" data-cat="bookmark">
+      <div class="art-img"><div class="art-img-inner ph-mauve">
+        <svg width="48" height="82" viewBox="0 0 48 82" fill="none"><path d="M6 4h36v74L24 62 6 78V4z" fill="white" opacity=".22"/><path d="M12 34 Q24 20 36 34 Q24 48 12 34z" fill="white" opacity=".28"/><circle cx="24" cy="56" r="5" fill="white" opacity=".2"/></svg>
+      </div></div>
+      <p class="art-tag">Bookmark</p>
+      <p class="art-name">Mauve Petal — Rose</p>
+      <p class="art-desc">Watercolour · RM 28</p>
+    </div>
+
+    <div class="art-card" data-cat="portrait">
+      <div class="art-img"><div class="art-img-inner ph-warm">
+        <svg width="80" height="78" viewBox="0 0 80 78" fill="none"><rect x="4" y="4" width="72" height="70" rx="2" fill="white" opacity=".1"/><circle cx="28" cy="30" r="13" stroke="white" stroke-width=".9" opacity=".3" fill="none"/><circle cx="52" cy="30" r="13" stroke="white" stroke-width=".9" opacity=".3" fill="none"/><path d="M16 52 Q40 44 64 52" stroke="white" stroke-width=".9" fill="none" opacity=".25"/></svg>
+      </div></div>
+      <p class="art-tag">Portrait</p>
+      <p class="art-name">Couple Portrait</p>
+      <p class="art-desc">Pensil & Dakwat · RM 280</p>
+    </div>
+
+    <div class="art-card" data-cat="bookmark">
+      <div class="art-img"><div class="art-img-inner ph-dusk">
+        <svg width="48" height="82" viewBox="0 0 48 82" fill="none"><path d="M6 4h36v74L24 62 6 78V4z" fill="white" opacity=".22"/><path d="M12 34 Q24 22 36 34 Q24 46 12 34z" fill="white" opacity=".28"/><circle cx="24" cy="34" r="6" stroke="white" stroke-width=".8" fill="none" opacity=".35"/></svg>
+      </div></div>
+      <p class="art-tag">Bookmark</p>
+      <p class="art-name">Midnight Garden</p>
+      <p class="art-desc">Watercolour · RM 30</p>
+    </div>
+
+    <div class="art-card" data-cat="bookmark">
+      <div class="art-img"><div class="art-img-inner ph-clay">
+        <svg width="48" height="82" viewBox="0 0 48 82" fill="none"><path d="M6 4h36v74L24 62 6 78V4z" fill="white" opacity=".22"/><circle cx="24" cy="28" r="10" stroke="white" stroke-width=".9" fill="none" opacity=".35"/><path d="M14 44 Q24 36 34 44" stroke="white" stroke-width=".9" fill="none" opacity=".3"/></svg>
+      </div></div>
+      <p class="art-tag">Bookmark</p>
+      <p class="art-name">Terracotta Dawn</p>
+      <p class="art-desc">Watercolour · RM 25</p>
+    </div>
+
+    <div class="art-card" data-cat="portrait">
+      <div class="art-img"><div class="art-img-inner ph-dusty">
+        <svg width="62" height="78" viewBox="0 0 62 78" fill="none"><rect x="4" y="4" width="54" height="70" rx="2" fill="white" opacity=".12"/><circle cx="31" cy="30" r="14" stroke="white" stroke-width=".9" opacity=".28" fill="none"/><ellipse cx="31" cy="23" rx="7" ry="9" fill="white" opacity=".18"/><path d="M20 50 Q31 44 42 50" stroke="white" stroke-width=".9" fill="none" opacity=".22"/></svg>
+      </div></div>
+      <p class="art-tag">Portrait</p>
+      <p class="art-name">Family Portrait — 3 Orang</p>
+      <p class="art-desc">Pensil & Dakwat · RM 350</p>
+    </div>
+
+    <div class="art-card" data-cat="bookmark">
+      <div class="art-img"><div class="art-img-inner ph-forest">
+        <svg width="48" height="82" viewBox="0 0 48 82" fill="none"><path d="M6 4h36v74L24 62 6 78V4z" fill="white" opacity=".22"/><path d="M16 48 L24 28 L32 48z" fill="white" opacity=".3"/><path d="M12 56 L24 36 L36 56z" fill="white" opacity=".2"/></svg>
+      </div></div>
+      <p class="art-tag">Bookmark</p>
+      <p class="art-name">Hutan Hujan — Evergreen</p>
+      <p class="art-desc">Watercolour · RM 27</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-brand">
+      <img src="illham-logo.png" alt="illham"/>
+      <p>Potret dan bookmark lukisan tangan, dibuat dengan jiwa. Malaysia.</p>
+    </div>
+    <div class="foot-col">
+      <h5>Shop</h5>
+      <ul>
+        <li><a href="index.html#shop">Bookmarks</a></li>
+        <li><a href="index.html#shop">Portraits</a></li>
+        <li><a href="index.html#shop">Gift Sets</a></li>
+        <li><a href="index.html#shop">Custom Orders</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Info</h5>
+      <ul>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#process">Process</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Follow</h5>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Etsy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <p>© 2026 illham.art — Hak cipta terpelihara</p>
+    <div class="foot-soc">
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+      <a href="#">Etsy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- WHATSAPP FLOATING BUTTON -->
+<a class="wa-float" href="https://wa.me/60137287182" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16.003 2C8.28 2 2 8.28 2 16.003c0 2.478.648 4.835 1.783 6.875L2 30l7.353-1.742A13.94 13.94 0 0 0 16.003 30C23.72 30 30 23.72 30 16.003 30 8.28 23.72 2 16.003 2zm0 25.472a11.42 11.42 0 0 1-5.825-1.594l-.418-.248-4.363 1.033 1.055-4.25-.272-.436A11.418 11.418 0 0 1 4.528 16c0-6.328 5.148-11.472 11.475-11.472C22.33 4.528 27.472 9.672 27.472 16c0 6.33-5.143 11.472-11.47 11.472zm6.29-8.594c-.345-.172-2.04-1.006-2.356-1.12-.317-.115-.547-.172-.777.172-.23.344-.89 1.12-1.09 1.35-.2.228-.4.258-.745.086-.345-.172-1.456-.537-2.773-1.71-1.025-.913-1.717-2.04-1.918-2.385-.2-.345-.02-.531.15-.703.154-.154.345-.4.517-.6.172-.2.23-.344.345-.573.115-.23.058-.43-.03-.602-.086-.172-.777-1.87-1.064-2.56-.28-.673-.563-.582-.777-.593l-.66-.011c-.23 0-.603.086-.918.43-.316.344-1.207 1.18-1.207 2.876s1.236 3.337 1.408 3.566c.172.23 2.43 3.71 5.889 5.203.823.355 1.465.567 1.966.726.826.263 1.578.226 2.172.137.663-.099 2.04-.834 2.328-1.64.287-.804.287-1.493.2-1.64-.086-.143-.316-.23-.66-.4z"/>
+  </svg>
+</a>
+
+<script>
+  // ── CURSOR ──
+  const cur=document.getElementById('cur'),ring=document.getElementById('ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function anim(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+  document.querySelectorAll('a,button,input').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.style.width='13px';cur.style.height='13px';ring.style.width='44px';ring.style.height='44px';});
+    el.addEventListener('mouseleave',()=>{cur.style.width='7px';cur.style.height='7px';ring.style.width='28px';ring.style.height='28px';});
+  });
+
+  // ── NAV SCROLL ──
+  window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>60));
+
+  // ── CAROUSEL ──
+  const track = document.getElementById('carouselTrack');
+  const slides = track.querySelectorAll('.carousel-slide');
+  const dotsContainer = document.getElementById('carouselDots');
+  const progressBar = document.getElementById('progressBar');
+  const total = slides.length;
+  let current = 0;
+  let autoTimer;
+
+  // Build dots
+  slides.forEach((_,i)=>{
+    const d=document.createElement('button');
+    d.className='dot'+(i===0?' active':'');
+    d.setAttribute('aria-label','Slide '+(i+1));
+    d.addEventListener('click',()=>goTo(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function updateUI(){
+    track.style.transform=`translateX(-${current*100}%)`;
+    dotsContainer.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===current));
+    progressBar.style.width=`${((current+1)/total)*100}%`;
+  }
+
+  function goTo(n){
+    current=(n+total)%total;
+    updateUI();
+    resetAuto();
+  }
+
+  document.getElementById('prevBtn').addEventListener('click',()=>goTo(current-1));
+  document.getElementById('nextBtn').addEventListener('click',()=>goTo(current+1));
+
+  // Keyboard nav
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft') goTo(current-1);
+    if(e.key==='ArrowRight') goTo(current+1);
+  });
+
+  // Touch/swipe
+  let touchStartX=0;
+  track.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+  track.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-touchStartX;
+    if(Math.abs(dx)>50) goTo(dx<0?current+1:current-1);
+  });
+
+  // Auto-advance
+  function startAuto(){ autoTimer=setInterval(()=>goTo(current+1),5000); }
+  function resetAuto(){ clearInterval(autoTimer);startAuto(); }
+
+  updateUI();
+  startAuto();
+
+  // ── FILTER ──
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.art-card');
+
+  filterBtns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      filterBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const f=btn.dataset.filter;
+      cards.forEach(c=>{
+        const match=f==='all'||c.dataset.cat===f;
+        c.style.display=match?'block':'none';
+      });
+    });
+  });
+
+  // ── GRID REVEAL ──
+  const artObs=new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){
+        setTimeout(()=>e.target.classList.add('visible'),i*80);
+        artObs.unobserve(e.target);
+      }
+    });
+  },{threshold:.1});
+  cards.forEach(el=>artObs.observe(el));
+</script>
+</body>
+</html>
