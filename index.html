@@ -116,29 +116,21 @@
     .hero-right {
       position:relative;overflow:hidden;
       display:flex;align-items:center;justify-content:center;
-      padding:8rem 3rem 4rem;
+      padding:6rem 2rem 4rem;
+      background:var(--cream);
     }
-    .hero-right::before { content:'';position:absolute;inset:0;background:linear-gradient(to right, var(--cream) 0%, transparent 25%);z-index:2; }
-    .bookmark-mosaic {
-      display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
-      position:relative;z-index:1;width:100%;max-width:400px;
+    .hero-right::before { content:'';position:absolute;inset:0;background:linear-gradient(to right, var(--cream) 0%, transparent 20%);z-index:2; }
+    .hero-img-wrap {
+      position:relative;z-index:3;
+      width:100%;max-width:500px;
       opacity:0;animation:fadeIn 1.2s .5s forwards;
     }
-    .bm-card {
-      border-radius:2px;
-      display:flex;align-items:center;justify-content:center;
-      position:relative;overflow:hidden;
-      transition:transform .4s ease;
+    .hero-bookmark-img {
+      width:100%;
+      object-fit:contain;
+      mix-blend-mode:multiply;
+      filter:drop-shadow(0 24px 60px rgba(44,36,32,0.18));
     }
-    .bm-card:hover { transform:translateY(-6px); }
-    .bm-card:nth-child(1) { background:linear-gradient(160deg,#E8D5C4,#D4B8A0);aspect-ratio:1/2.8;margin-top:2rem; }
-    .bm-card:nth-child(2) { background:linear-gradient(160deg,#C4CCBA,#A8B49A);aspect-ratio:1/2.8; }
-    .bm-card:nth-child(3) { background:linear-gradient(160deg,#B8C4CC,#98A8B4);aspect-ratio:1/2.8;margin-top:3rem; }
-    .bm-card:nth-child(4) { background:linear-gradient(160deg,#D4C4CC,#B8A0A8);aspect-ratio:1/2.8;margin-top:-2rem; }
-    .bm-card:nth-child(5) { background:linear-gradient(160deg,#E0D4C0,#C4B098);aspect-ratio:1/2.8;margin-top:1rem; }
-    .bm-card:nth-child(6) { background:linear-gradient(160deg,#C8CCC4,#A8B0A0);aspect-ratio:1/2.8;margin-top:-1rem; }
-    /* Decorative floral SVG inside each */
-    .bm-inner { width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:.5rem; }
 
     /* TICKER */
     .ticker { border-top:1px solid var(--light);border-bottom:1px solid var(--light);overflow:hidden;padding:.8rem 0;background:var(--white); }
@@ -308,26 +300,8 @@
     </div>
   </div>
   <div class="hero-right">
-    <div class="bookmark-mosaic">
-      <!-- 6 bookmark cards -->
-      <div class="bm-card"><div class="bm-inner">
-        <svg width="28" height="48" viewBox="0 0 28 48" fill="none"><path d="M4 2h20v44l-10-8-10 8V2z" fill="white" opacity=".25"/><circle cx="14" cy="18" r="6" stroke="white" stroke-width=".7" opacity=".4"/></svg>
-      </div></div>
-      <div class="bm-card"><div class="bm-inner">
-        <svg width="28" height="48" viewBox="0 0 28 48" fill="none"><path d="M4 2h20v44l-10-8-10 8V2z" fill="white" opacity=".2"/><path d="M8 18 Q14 10 20 18 Q14 26 8 18z" fill="white" opacity=".35"/></svg>
-      </div></div>
-      <div class="bm-card"><div class="bm-inner">
-        <svg width="28" height="48" viewBox="0 0 28 48" fill="none"><path d="M4 2h20v44l-10-8-10 8V2z" fill="white" opacity=".2"/><line x1="9" y1="16" x2="19" y2="16" stroke="white" stroke-width=".7" opacity=".5"/><line x1="9" y1="20" x2="16" y2="20" stroke="white" stroke-width=".7" opacity=".4"/></svg>
-      </div></div>
-      <div class="bm-card"><div class="bm-inner">
-        <svg width="28" height="48" viewBox="0 0 28 48" fill="none"><path d="M4 2h20v44l-10-8-10 8V2z" fill="white" opacity=".2"/><circle cx="14" cy="22" r="4" fill="white" opacity=".25"/><circle cx="14" cy="22" r="7" stroke="white" stroke-width=".6" opacity=".3"/></svg>
-      </div></div>
-      <div class="bm-card"><div class="bm-inner">
-        <svg width="28" height="48" viewBox="0 0 28 48" fill="none"><path d="M4 2h20v44l-10-8-10 8V2z" fill="white" opacity=".2"/><path d="M10 14 L14 8 L18 14 L14 20z" fill="white" opacity=".3"/></svg>
-      </div></div>
-      <div class="bm-card"><div class="bm-inner">
-        <svg width="28" height="48" viewBox="0 0 28 48" fill="none"><path d="M4 2h20v44l-10-8-10 8V2z" fill="white" opacity=".2"/><path d="M9 15 Q11 10 14 13 Q17 10 19 15 Q17 22 14 24 Q11 22 9 15z" fill="white" opacity=".3"/></svg>
-      </div></div>
+    <div class="hero-img-wrap">
+      <img src="bookmark-hero.png" alt="illham bookmark karya" class="hero-bookmark-img"/>
     </div>
   </div>
 </section>
@@ -371,7 +345,7 @@
       <p class="prod-desc">Lukisan watercolour bunga tangan di atas kad tebal. Teman setia pembaca.</p>
       <div class="prod-foot">
         <span class="prod-price">RM 25</span>
-        <a href="https://wa.me/60137287182" target="_blank" class="prod-btn" style="text-decoration:none">Tanya di WA</a>
+        <a href="https://wa.me/60137287182?text=Hai%20Zak.illham!%20Saya%20berminat%20dengan%20Floral%20Series%20I%20%F0%9F%8C%B8" target="_blank" class="prod-btn" style="text-decoration:none">Tanya di WA</a>
       </div>
     </div>
     <div class="prod-card reveal">
@@ -385,7 +359,7 @@
       <p class="prod-desc">Potret lukisan tangan dari gambar kau. Pensil atau dakwat. Kenangan abadi.</p>
       <div class="prod-foot">
         <span class="prod-price">RM 180</span>
-        <a href="https://wa.me/60137287182" target="_blank" class="prod-btn" style="text-decoration:none">Tanya di WA</a>
+        <a href="https://wa.me/60137287182?text=Hai%20Zak.illham!%20Saya%20berminat%20dengan%20Custom%20Portrait%20%F0%9F%96%8A%EF%B8%8F" target="_blank" class="prod-btn" style="text-decoration:none">Tanya di WA</a>
       </div>
     </div>
     <div class="prod-card reveal">
@@ -403,7 +377,7 @@
       <p class="prod-desc">Tiga bookmark botanical. Hijau bumi dan kabus pagi. Hadiah sempurna.</p>
       <div class="prod-foot">
         <span class="prod-price">RM 65</span>
-        <a href="https://wa.me/60137287182" target="_blank" class="prod-btn" style="text-decoration:none">Tanya di WA</a>
+        <a href="https://wa.me/60137287182?text=Hai%20Zak.illham!%20Saya%20berminat%20dengan%20Forest%20%26%20Fog%20Set%20%F0%9F%8C%BF" target="_blank" class="prod-btn" style="text-decoration:none">Tanya di WA</a>
       </div>
     </div>
   </div>
