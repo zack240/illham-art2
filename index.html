@@ -167,7 +167,7 @@
     /* ABOUT */
     .about { display:grid;grid-template-columns:1fr 1fr;background:var(--ink);color:var(--white); }
     .about-vis { position:relative;overflow:hidden;min-height:500px;background:#231e1a;display:flex;align-items:center;justify-content:center; }
-    .about-vis img { width:65%;opacity:.1;filter:invert(1); }
+    .about-vis img { width:100%;height:100%;object-fit:cover; }
     .about-text { padding:6rem 5rem;display:flex;flex-direction:column;justify-content:center; }
     .about-text .sec-label { color:#4a4038; }
     .about-text h2 { font-family:'Playfair Display',serif;font-size:clamp(1.8rem,2.8vw,2.4rem);font-weight:400;line-height:1.3;margin-bottom:1.8rem; }
@@ -387,7 +387,7 @@
 <!-- ABOUT -->
 <section class="about reveal" id="about">
   <div class="about-vis">
-    <img src="illham-logo.png" alt=""/>
+    <img src="images/about-board.png" alt="Paparan Bookmark illham"/>
   </div>
   <div class="about-text">
     <p class="sec-label">Tentang Kami</p>
