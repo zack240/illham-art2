@@ -1,0 +1,10 @@
+# Secrets - jangan sekali-kali commit
+supabase_details.txt
+.env
+.env.*
+.netlify/
+supabase/.temp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
