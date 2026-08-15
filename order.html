@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tempah Bookmark — illham</title>
+  <link rel="icon" type="image/png" href="favicon.png?v=3"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:    #F5F0E8;
+      --blush:    #E8D5C4;
+      --mauve:    #C4B0B8;
+      --ink:      #2C2420;
+      --charcoal: #4A3F38;
+      --mid:      #9A8E84;
+      --light:    #EDE8E0;
+      --white:    #FAF8F5;
+      --error:    #B33A2E;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    .top-logo { display:flex; justify-content:center; margin-bottom: 2rem; }
+    .top-logo img { height: 34px; mix-blend-mode: multiply; }
+
+    .card {
+      max-width: 620px;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 3rem 2.5rem;
+      box-shadow: 0 20px 60px rgba(44,36,32,0.08);
+    }
+
+    .kicker {
+      font-size: .62rem; letter-spacing:.32em; text-transform:uppercase;
+      color: var(--mid); margin-bottom: 1rem; display:flex; align-items:center; gap:.8rem;
+    }
+    .kicker span { width:24px; height:1px; background: var(--mauve); display:inline-block; }
+
+    h1 {
+      font-family:'Playfair Display', serif;
+      font-weight: 400;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      margin-bottom: .8rem;
+    }
+    h1 em { font-style: italic; color: var(--charcoal); }
+
+    .lede { font-size:.9rem; font-weight:300; color: var(--mid); line-height:1.8; margin-bottom: 2.4rem; max-width: 46ch; }
+
+    form { display:flex; flex-direction:column; gap: 1.5rem; }
+
+    .field label {
+      display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+      color: var(--charcoal); margin-bottom:.5rem;
+    }
+    .field .hint { font-size:.72rem; color: var(--mid); font-weight:300; margin-top:.4rem; }
+
+    input[type=text], input[type=email], input[type=tel], textarea {
+      width:100%; border:1px solid var(--light); background: var(--white);
+      font-family:'DM Sans', sans-serif; font-size:.9rem; color: var(--ink);
+      padding:.85rem 1rem; outline:none; transition: border-color .2s;
+    }
+    input:focus, textarea:focus { border-color: var(--mauve); }
+    textarea { resize: vertical; min-height: 5rem; }
+
+    .file-drop {
+      border: 1px dashed var(--mid); padding: 1.6rem 1rem; text-align:center;
+      cursor:pointer; transition: border-color .2s, background .2s;
+    }
+    .file-drop.has-file { border-style: solid; border-color: var(--charcoal); }
+    .file-drop input { display:none; }
+    .file-drop p { font-size:.82rem; color: var(--mid); }
+    .file-drop .fname { color: var(--ink); font-weight:500; margin-top:.4rem; }
+
+    .submit-btn {
+      background: var(--ink); color: var(--white); border:none;
+      padding:1rem 2rem; font-family:'DM Sans', sans-serif; font-size:.7rem;
+      letter-spacing:.2em; text-transform:uppercase; cursor:pointer;
+      transition: background .25s; margin-top:.5rem;
+    }
+    .submit-btn:hover:not(:disabled) { background: var(--charcoal); }
+    .submit-btn:disabled { opacity:.6; cursor: not-allowed; }
+
+    .msg { font-size:.82rem; padding:.9rem 1rem; display:none; }
+    .msg.error { display:block; background:#FBEAE7; color: var(--error); }
+
+    .success {
+      display:none; text-align:center; padding: 1rem 0;
+    }
+    .success .num {
+      font-family:'Playfair Display', serif; font-size:3.2rem; color: var(--charcoal);
+      margin: 1rem 0;
+    }
+    .success p { color: var(--mid); font-size:.88rem; line-height:1.8; }
+    .success a.back { display:inline-block; margin-top:2rem; font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color: var(--mid); text-decoration:none; border-bottom:1px solid var(--blush); padding-bottom:2px; }
+
+    @media (max-width: 640px) { .card { padding: 2.4rem 1.4rem; } }
+  </style>
+</head>
+<body>
+
+<div class="top-logo"><a href="index.html"><img src="illham-logo.png?v=2" alt="illham"/></a></div>
+
+<div class="card">
+  <div id="formView">
+    <div class="kicker"><span></span>Custom Order</div>
+    <h1>Tempah bookmark <em>anda sendiri.</em></h1>
+    <p class="lede">Isi butiran di bawah dan muat naik gambar rujukan untuk lukisan anda. Kami akan hubungi anda melalui WhatsApp/emel untuk pengesahan harga dan tarikh siap.</p>
+
+    <div id="errorMsg" class="msg"></div>
+
+    <form id="orderForm">
+      <div class="field">
+        <label for="customerName">Nama Penuh</label>
+        <input type="text" id="customerName" name="customerName" required autocomplete="name"/>
+      </div>
+
+      <div class="field">
+        <label for="email">Emel</label>
+        <input type="email" id="email" name="email" required autocomplete="email"/>
+      </div>
+
+      <div class="field">
+        <label for="phone">No. Telefon (WhatsApp)</label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="01X-XXXXXXX"/>
+      </div>
+
+      <div class="field">
+        <label for="address">Alamat Penghantaran</label>
+        <textarea id="address" name="address" required placeholder="Alamat penuh termasuk poskod dan negeri"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="size">Saiz Bookmark (jika tahu)</label>
+        <input type="text" id="size" name="size" placeholder="cth: Postcard, A5 — atau biar kosong"/>
+      </div>
+
+      <div class="field">
+        <label for="photo">Gambar Rujukan untuk Dilukis</label>
+        <label class="file-drop" id="fileDrop" for="photo">
+          <input type="file" id="photo" name="photo" accept="image/*" required/>
+          <p id="fileHint">Klik untuk pilih gambar (JPG/PNG, maks 8MB)</p>
+        </label>
+        <p class="hint">Gambar ini disimpan secara peribadi — hanya kami yang boleh lihat.</p>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Hantar Tempahan</button>
+    </form>
+  </div>
+
+  <div class="success" id="successView">
+    <p class="kicker" style="justify-content:center"><span></span>Tempahan Diterima<span></span></p>
+    <p>No. Giliran Anda</p>
+    <div class="num" id="queueNumber">—</div>
+    <p>Terima kasih! Kami akan hubungi anda tidak lama lagi melalui WhatsApp atau emel untuk pengesahan harga dan tarikh siap.</p>
+    <a href="index.html" class="back">Kembali ke Laman Utama</a>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://hvmdilqxekrbfvohmozp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_gDwTApSzTeujZgyz3Jbquw_sbkDkVvO';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const MAX_FILE_BYTES = 8 * 1024 * 1024;
+
+  const form = document.getElementById('orderForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const fileInput = document.getElementById('photo');
+  const fileDrop = document.getElementById('fileDrop');
+  const fileHint = document.getElementById('fileHint');
+  const formView = document.getElementById('formView');
+  const successView = document.getElementById('successView');
+  const queueNumberEl = document.getElementById('queueNumber');
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    fileDrop.classList.add('has-file');
+    fileHint.innerHTML = `Dipilih: <span class="fname">${escapeHtml(file.name)}</span>`;
+  });
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showError(message) {
+    errorMsg.textContent = message;
+    errorMsg.classList.add('error');
+    errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearError() {
+    errorMsg.classList.remove('error');
+    errorMsg.textContent = '';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const customerName = document.getElementById('customerName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const size = document.getElementById('size').value.trim();
+    const file = fileInput.files[0];
+
+    if (!customerName || !email || !phone || !address || !file) {
+      showError('Sila lengkapkan semua ruangan wajib dan pilih gambar rujukan.');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      showError('Fail mesti gambar (JPG/PNG/WebP dll).');
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      showError('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Menghantar...';
+
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const path = `${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadError } = await supabase
+        .storage
+        .from('reference-photos')
+        .upload(path, file, { contentType: file.type, upsert: false });
+
+      if (uploadError) {
+        throw new Error('Gagal muat naik gambar. Sila cuba lagi.');
+      }
+
+      const { data, error: rpcError } = await supabase.rpc('submit_order', {
+        p_customer_name: customerName,
+        p_email: email,
+        p_phone: phone,
+        p_delivery_address: address,
+        p_reference_photo_path: path,
+        p_bookmark_size: size || null,
+      });
+
+      if (rpcError) {
+        await supabase.storage.from('reference-photos').remove([path]);
+        throw new Error('Gagal hantar tempahan. Sila cuba lagi sebentar.');
+      }
+
+      const row = Array.isArray(data) ? data[0] : data;
+      queueNumberEl.textContent = row?.queue_number ?? '—';
+      formView.style.display = 'none';
+      successView.style.display = 'block';
+    } catch (err) {
+      showError(err.message || 'Ralat tidak dijangka berlaku. Sila cuba lagi.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Hantar Tempahan';
+    }
+  });
+</script>
+
+</body>
+</html>
