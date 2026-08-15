@@ -149,6 +149,19 @@
     .sec-link { font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mid);text-decoration:none;border-bottom:1px solid var(--light);padding-bottom:2px;transition:color .25s,border-color .25s; }
     .sec-link:hover { color:var(--ink);border-color:var(--ink); }
 
+    /* STATUS BOARD */
+    .status-board { padding:6rem 5rem 3rem; }
+    .status-table-wrap { overflow-x:auto; }
+    .status-table { width:100%;border-collapse:collapse;font-size:.86rem; }
+    .status-table th { text-align:left;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);padding:.9rem 1rem;border-bottom:1px solid var(--light);white-space:nowrap; }
+    .status-table td { padding:1rem;border-bottom:1px solid var(--light);color:var(--ink); }
+    .status-badge { display:inline-block;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.35rem .8rem; }
+    .status-badge.baru { background:var(--light);color:var(--mid); }
+    .status-badge.dalam_lukisan { background:var(--dusty);color:var(--ink); }
+    .status-badge.siap { background:var(--sage);color:var(--ink); }
+    .status-badge.dihantar { background:var(--ink);color:var(--white); }
+    .status-note, .status-empty { text-align:center;color:var(--mid);padding:2rem;font-size:.85rem; }
+
     .prod-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1.8rem; }
     .prod-card { cursor:none; }
     .prod-img { position:relative;overflow:hidden;margin-bottom:1.2rem; }
@@ -249,7 +262,7 @@
       .hero-left{padding:8rem 2rem 3rem;}
       .hero-right{height:280px;padding:2rem;}
       .bookmark-mosaic{max-width:280px;}
-      .products,.process,.nl,footer{padding-left:2rem;padding-right:2rem;}
+      .products,.process,.nl,footer,.status-board{padding-left:2rem;padding-right:2rem;}
       .prod-grid{grid-template-columns:1fr;}
       .about{grid-template-columns:1fr;}
       .about-vis{min-height:180px;}
@@ -331,6 +344,27 @@
     <span class="ticker-item">illham.art</span><span class="ticker-item"><span class="ticker-dot"> ◆ </span></span>
   </div>
 </div>
+
+<!-- STATUS BOARD -->
+<section class="status-board reveal" id="status">
+  <div class="sec-head">
+    <div>
+      <p class="sec-label">Live Tracking</p>
+      <h2 class="sec-title">Status <em>Tempahan</em></h2>
+    </div>
+    <a href="order.html" class="sec-link">Tempah Baru →</a>
+  </div>
+  <div class="status-table-wrap">
+    <table class="status-table">
+      <thead>
+        <tr><th>No. Giliran</th><th>Status</th><th>Anggaran Siap</th></tr>
+      </thead>
+      <tbody id="statusTableBody">
+        <tr><td colspan="3" class="status-note">Memuatkan...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
 <!-- PRODUCTS -->
 <section class="products reveal" id="shop">
@@ -517,6 +551,48 @@
     entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('on'),i*80);obs.unobserve(e.target);}});
   },{threshold:.1});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://hvmdilqxekrbfvohmozp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_gDwTApSzTeujZgyz3Jbquw_sbkDkVvO';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const STATUS_LABELS = { baru: 'Baru', dalam_lukisan: 'Dalam Lukisan', siap: 'Siap', dihantar: 'Dihantar' };
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  (async () => {
+    const tbody = document.getElementById('statusTableBody');
+    const { data, error } = await supabase.rpc('get_order_board');
+
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="3" class="status-note">Gagal muat status. Sila cuba lagi kemudian.</td></tr>`;
+      return;
+    }
+    if (!data || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="status-empty">Tiada tempahan aktif buat masa ini.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(o => `
+      <tr>
+        <td>No. ${String(o.queue_number).padStart(4, '0')}</td>
+        <td><span class="status-badge ${escapeHtml(o.status)}">${escapeHtml(STATUS_LABELS[o.status] || o.status)}</span></td>
+        <td>${formatDate(o.estimated_completion_date)}</td>
+      </tr>
+    `).join('');
+  })();
 </script>
 </body>
 </html>
