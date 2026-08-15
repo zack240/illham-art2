@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>Backoffice — illham</title>
+  <link rel="icon" type="image/png" href="favicon.png?v=3"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:    #F5F0E8;
+      --blush:    #E8D5C4;
+      --mauve:    #C4B0B8;
+      --ink:      #2C2420;
+      --charcoal: #4A3F38;
+      --mid:      #9A8E84;
+      --light:    #EDE8E0;
+      --white:    #FAF8F5;
+      --error:    #B33A2E;
+      --ok:       #4B7052;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; }
+
+    /* HEADER */
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 1.2rem 2rem; background: var(--white); border-bottom: 1px solid var(--light);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header img { height: 30px; mix-blend-mode: multiply; }
+    .logout-btn {
+      font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+      background: none; border: 1px solid var(--mid); color: var(--charcoal);
+      padding: .55rem 1.2rem; cursor: pointer; transition: background .2s;
+    }
+    .logout-btn:hover { background: var(--light); }
+
+    /* LOGIN */
+    .login-wrap { display:flex; align-items:center; justify-content:center; min-height: 90vh; padding: 1.5rem; }
+    .login-card {
+      max-width: 380px; width:100%; background: var(--white); padding: 2.8rem 2.2rem;
+      box-shadow: 0 20px 60px rgba(44,36,32,0.08);
+    }
+    .login-card h1 { font-family:'Playfair Display', serif; font-weight:400; font-size:1.6rem; margin-bottom: .5rem; }
+    .login-card p.sub { font-size:.82rem; color: var(--mid); margin-bottom: 1.8rem; }
+    .field { margin-bottom: 1.2rem; }
+    .field label {
+      display:block; font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+      color: var(--charcoal); margin-bottom:.4rem;
+    }
+    input[type=text], input[type=email], input[type=password], input[type=date], input[type=number], textarea, select {
+      width:100%; border:1px solid var(--light); background: var(--white);
+      font-family:'DM Sans', sans-serif; font-size:.85rem; color: var(--ink);
+      padding:.7rem .85rem; outline:none; transition: border-color .2s;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--mauve); }
+
+    .btn {
+      background: var(--ink); color: var(--white); border:none;
+      padding:.85rem 1.6rem; font-family:'DM Sans', sans-serif; font-size:.68rem;
+      letter-spacing:.18em; text-transform:uppercase; cursor:pointer;
+      transition: background .25s;
+    }
+    .btn:hover:not(:disabled) { background: var(--charcoal); }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .btn-outline { background:none; border:1px solid var(--mid); color: var(--charcoal); }
+    .btn-outline:hover:not(:disabled) { background: var(--light); }
+    .btn-small { padding:.55rem 1rem; font-size:.62rem; }
+
+    .msg { font-size:.8rem; padding:.7rem .9rem; margin-top: 1rem; display:none; }
+    .msg.error { display:block; background:#FBEAE7; color: var(--error); }
+    .msg.ok { display:block; background:#E9F1EA; color: var(--ok); }
+
+    /* DASHBOARD */
+    main { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-bottom: 1.6rem; }
+    .tab {
+      font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color: var(--mid);
+      background: var(--white); border:1px solid var(--light); padding:.55rem 1.1rem; cursor:pointer;
+    }
+    .tab.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .toolbar .count { font-size:.78rem; color: var(--mid); margin-left:auto; }
+
+    .order-card {
+      background: var(--white); border: 1px solid var(--light); margin-bottom: 1.2rem;
+      display: grid; grid-template-columns: 1.1fr 1.4fr; gap: 0;
+    }
+    .order-left { padding: 1.4rem 1.6rem; border-right: 1px solid var(--light); }
+    .order-right { padding: 1.4rem 1.6rem; display:flex; flex-direction:column; gap: .9rem; }
+
+    .queue-badge {
+      font-family:'Playfair Display', serif; font-size: 1.6rem; color: var(--charcoal);
+      display:inline-block; margin-bottom: .6rem;
+    }
+    .order-left dl { font-size:.84rem; }
+    .order-left dt { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color: var(--mid); margin-top:.7rem; }
+    .order-left dd { color: var(--ink); word-break: break-word; }
+    .order-left dt:first-of-type { margin-top: 0; }
+
+    .photo-links { display:flex; gap:.6rem; flex-wrap:wrap; margin-top: 1rem; }
+    .photo-links a, .photo-links label {
+      font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color: var(--charcoal);
+      border-bottom: 1px solid var(--blush); padding-bottom:2px; cursor:pointer; text-decoration:none;
+    }
+    .photo-links input[type=file] { display:none; }
+
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+    .row-actions { display:flex; gap:.6rem; align-items:center; margin-top:.3rem; }
+    .row-status { font-size:.72rem; color: var(--mid); }
+    .row-status.ok { color: var(--ok); }
+    .row-status.error { color: var(--error); }
+
+    .empty-state { text-align:center; padding: 4rem 1rem; color: var(--mid); font-size:.9rem; }
+
+    @media (max-width: 760px) {
+      .order-card { grid-template-columns: 1fr; }
+      .order-left { border-right:none; border-bottom:1px solid var(--light); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <h1>Backoffice illham</h1>
+    <p class="sub">Log masuk untuk urus tempahan customer.</p>
+    <div id="loginMsg" class="msg"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Emel</label>
+        <input type="email" id="loginEmail" required autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Kata Laluan</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password"/>
+      </div>
+      <button type="submit" class="btn" id="loginBtn" style="width:100%">Log Masuk</button>
+    </form>
+  </div>
+</div>
+
+<div id="dashboardView" style="display:none">
+  <header>
+    <img src="illham-logo.png?v=2" alt="illham"/>
+    <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+  </header>
+  <main>
+    <div class="toolbar">
+      <button class="tab active" data-filter="active">Aktif</button>
+      <button class="tab" data-filter="baru">Baru</button>
+      <button class="tab" data-filter="dalam_lukisan">Dalam Lukisan</button>
+      <button class="tab" data-filter="siap">Siap</button>
+      <button class="tab" data-filter="dihantar">Dihantar</button>
+      <button class="tab" data-filter="archived">Arkib</button>
+      <span class="count" id="orderCount"></span>
+    </div>
+    <div id="ordersList"></div>
+    <div id="emptyState" class="empty-state" style="display:none">Tiada tempahan dalam kategori ini.</div>
+  </main>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://hvmdilqxekrbfvohmozp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_gDwTApSzTeujZgyz3Jbquw_sbkDkVvO';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const STATUS_LABELS = { baru: 'Baru', dalam_lukisan: 'Dalam Lukisan', siap: 'Siap', dihantar: 'Dihantar' };
+  const PAYMENT_LABELS = { belum_bayar: 'Belum Bayar', deposit: 'Deposit', lunas: 'Lunas' };
+
+  const loginView = document.getElementById('loginView');
+  const dashboardView = document.getElementById('dashboardView');
+  const loginForm = document.getElementById('loginForm');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginMsg = document.getElementById('loginMsg');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const ordersList = document.getElementById('ordersList');
+  const emptyState = document.getElementById('emptyState');
+  const orderCount = document.getElementById('orderCount');
+  const tabs = document.querySelectorAll('.tab');
+
+  let currentFilter = 'active';
+  let allOrders = [];
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      showDashboard();
+    } else {
+      loginView.style.display = 'flex';
+      dashboardView.style.display = 'none';
+    }
+  }
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginMsg.className = 'msg';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Log masuk...';
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Log Masuk';
+
+    if (error) {
+      loginMsg.textContent = 'Emel atau kata laluan salah.';
+      loginMsg.classList.add('error');
+      return;
+    }
+    showDashboard();
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    loginView.style.display = 'flex';
+    dashboardView.style.display = 'none';
+    document.getElementById('loginPassword').value = '';
+  });
+
+  function showDashboard() {
+    loginView.style.display = 'none';
+    dashboardView.style.display = 'block';
+    loadOrders();
+  }
+
+  async function loadOrders() {
+    ordersList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Memuatkan...</p>';
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('queue_number', { ascending: true });
+
+    if (error) {
+      ordersList.innerHTML = '';
+      emptyState.style.display = 'block';
+      emptyState.textContent = 'Gagal muat data: ' + error.message;
+      return;
+    }
+    allOrders = data || [];
+    render();
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      render();
+    });
+  });
+
+  function render() {
+    let filtered;
+    if (currentFilter === 'active') filtered = allOrders.filter(o => !o.is_archived);
+    else if (currentFilter === 'archived') filtered = allOrders.filter(o => o.is_archived);
+    else filtered = allOrders.filter(o => !o.is_archived && o.status === currentFilter);
+
+    orderCount.textContent = `${filtered.length} tempahan`;
+
+    if (!filtered.length) {
+      ordersList.innerHTML = '';
+      emptyState.style.display = 'block';
+      emptyState.textContent = 'Tiada tempahan dalam kategori ini.';
+      return;
+    }
+    emptyState.style.display = 'none';
+    ordersList.innerHTML = filtered.map(orderCardHtml).join('');
+    filtered.forEach(bindCardEvents);
+  }
+
+  function orderCardHtml(o) {
+    const queueNum = String(o.queue_number).padStart(4, '0');
+    return `
+      <div class="order-card" data-id="${o.id}">
+        <div class="order-left">
+          <div class="queue-badge">No. ${queueNum}</div>
+          <dl>
+            <dt>Nama</dt><dd>${escapeHtml(o.customer_name)}</dd>
+            <dt>Emel</dt><dd>${escapeHtml(o.email)}</dd>
+            <dt>Telefon</dt><dd>${escapeHtml(o.phone)}</dd>
+            <dt>Alamat Penghantaran</dt><dd>${escapeHtml(o.delivery_address)}</dd>
+            <dt>Tarikh Tempah</dt><dd>${new Date(o.created_at).toLocaleString('ms-MY')}</dd>
+          </dl>
+          <div class="photo-links">
+            <a data-action="view-ref" href="#">Lihat Gambar Rujukan</a>
+            <a data-action="view-done" href="#" style="${o.completed_photo_path ? '' : 'display:none'}">Lihat Hasil Siap</a>
+            <label>Muat Naik Hasil Siap<input type="file" accept="image/*" data-action="upload-done"/></label>
+          </div>
+        </div>
+        <div class="order-right">
+          <div class="grid-2">
+            <div class="field">
+              <label>Status</label>
+              <select data-field="status">
+                ${Object.entries(STATUS_LABELS).map(([v, l]) => `<option value="${v}" ${o.status === v ? 'selected' : ''}>${l}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field">
+              <label>Bayaran</label>
+              <select data-field="payment_status">
+                ${Object.entries(PAYMENT_LABELS).map(([v, l]) => `<option value="${v}" ${o.payment_status === v ? 'selected' : ''}>${l}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Saiz Bookmark</label>
+              <input type="text" data-field="bookmark_size" value="${escapeHtml(o.bookmark_size)}"/>
+            </div>
+            <div class="field">
+              <label>Harga (RM)</label>
+              <input type="number" step="0.01" min="0" data-field="price" value="${o.price ?? ''}"/>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Tarikh Dijangka Siap</label>
+              <input type="date" data-field="estimated_completion_date" value="${o.estimated_completion_date ?? ''}"/>
+            </div>
+            <div class="field">
+              <label>No. Tracking Kurier</label>
+              <input type="text" data-field="courier_tracking_number" value="${escapeHtml(o.courier_tracking_number)}"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Nota Admin</label>
+            <textarea data-field="admin_notes" rows="2">${escapeHtml(o.admin_notes)}</textarea>
+          </div>
+          <div class="field" style="display:flex;align-items:center;gap:.5rem;">
+            <input type="checkbox" data-field="gallery_consent" id="gc-${o.id}" ${o.gallery_consent ? 'checked' : ''} style="width:auto"/>
+            <label for="gc-${o.id}" style="margin:0">Customer benarkan hasil masuk Gallery</label>
+          </div>
+          <div class="row-actions">
+            <button class="btn btn-small" data-action="save">Simpan</button>
+            <button class="btn btn-outline btn-small" data-action="toggle-archive">${o.is_archived ? 'Nyahaktif Arkib' : 'Arkibkan'}</button>
+            <span class="row-status" data-action="status"></span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindCardEvents(o) {
+    const card = document.querySelector(`.order-card[data-id="${o.id}"]`);
+    if (!card) return;
+    const statusEl = card.querySelector('[data-action="status"]');
+
+    card.querySelector('[data-action="view-ref"]').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await openSignedPhoto('reference-photos', o.reference_photo_path, statusEl);
+    });
+
+    const viewDoneEl = card.querySelector('[data-action="view-done"]');
+    if (viewDoneEl) {
+      viewDoneEl.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await openSignedPhoto('completed-photos', o.completed_photo_path, statusEl);
+      });
+    }
+
+    card.querySelector('[data-action="upload-done"]').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      statusEl.textContent = 'Memuat naik...';
+      statusEl.className = 'row-status';
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const path = `${o.id}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('completed-photos').upload(path, file, { contentType: file.type, upsert: true });
+      if (upErr) {
+        statusEl.textContent = 'Gagal muat naik: ' + upErr.message;
+        statusEl.className = 'row-status error';
+        return;
+      }
+      const { error: updErr } = await supabase.from('orders').update({ completed_photo_path: path }).eq('id', o.id);
+      if (updErr) {
+        statusEl.textContent = 'Gambar naik tapi gagal simpan rekod: ' + updErr.message;
+        statusEl.className = 'row-status error';
+        return;
+      }
+      o.completed_photo_path = path;
+      statusEl.textContent = 'Hasil siap dimuat naik.';
+      statusEl.className = 'row-status ok';
+      render();
+    });
+
+    card.querySelector('[data-action="save"]').addEventListener('click', async () => {
+      const btn = card.querySelector('[data-action="save"]');
+      btn.disabled = true;
+      statusEl.textContent = 'Menyimpan...';
+      statusEl.className = 'row-status';
+
+      const payload = {
+        status: card.querySelector('[data-field="status"]').value,
+        payment_status: card.querySelector('[data-field="payment_status"]').value,
+        bookmark_size: card.querySelector('[data-field="bookmark_size"]').value.trim() || null,
+        price: card.querySelector('[data-field="price"]').value === '' ? null : Number(card.querySelector('[data-field="price"]').value),
+        estimated_completion_date: card.querySelector('[data-field="estimated_completion_date"]').value || null,
+        courier_tracking_number: card.querySelector('[data-field="courier_tracking_number"]').value.trim() || null,
+        admin_notes: card.querySelector('[data-field="admin_notes"]').value.trim() || null,
+        gallery_consent: card.querySelector('[data-field="gallery_consent"]').checked,
+      };
+
+      const { error } = await supabase.from('orders').update(payload).eq('id', o.id);
+      btn.disabled = false;
+      if (error) {
+        statusEl.textContent = 'Gagal simpan: ' + error.message;
+        statusEl.className = 'row-status error';
+        return;
+      }
+      Object.assign(o, payload);
+      statusEl.textContent = 'Disimpan.';
+      statusEl.className = 'row-status ok';
+    });
+
+    card.querySelector('[data-action="toggle-archive"]').addEventListener('click', async () => {
+      const nextVal = !o.is_archived;
+      if (nextVal && !confirm(`Arkibkan tempahan No. ${String(o.queue_number).padStart(4, '0')}? Ia akan disembunyikan dari senarai aktif (data tidak dipadam).`)) return;
+      const { error } = await supabase.from('orders').update({ is_archived: nextVal }).eq('id', o.id);
+      if (error) {
+        statusEl.textContent = 'Gagal: ' + error.message;
+        statusEl.className = 'row-status error';
+        return;
+      }
+      o.is_archived = nextVal;
+      render();
+    });
+  }
+
+  async function openSignedPhoto(bucket, path, statusEl) {
+    if (!path) return;
+    statusEl.textContent = 'Membuka gambar...';
+    statusEl.className = 'row-status';
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 120);
+    if (error || !data?.signedUrl) {
+      statusEl.textContent = 'Gagal buka gambar: ' + (error?.message || 'ralat tidak diketahui');
+      statusEl.className = 'row-status error';
+      return;
+    }
+    statusEl.textContent = '';
+    window.open(data.signedUrl, '_blank', 'noopener');
+  }
+
+  checkSession();
+</script>
+
+</body>
+</html>
