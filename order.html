@@ -265,7 +265,8 @@
       }
 
       const row = Array.isArray(data) ? data[0] : data;
-      queueNumberEl.textContent = row?.queue_number ?? '—';
+      const queueNum = row?.queue_number;
+      queueNumberEl.textContent = queueNum != null ? String(queueNum).padStart(4, '0') : '—';
       formView.style.display = 'none';
       successView.style.display = 'block';
     } catch (err) {
