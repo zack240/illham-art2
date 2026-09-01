@@ -84,6 +84,15 @@
     input:focus, textarea:focus { border-color: var(--mauve); }
     textarea { resize: vertical; min-height: 5rem; }
 
+    .chip-group { display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:.9rem; }
+    .chip {
+      font-family:'DM Sans', sans-serif; font-size:.78rem; font-weight:400;
+      color: var(--charcoal); background: var(--white); border:1px solid var(--light);
+      padding:.65rem 1.1rem; cursor:pointer; transition: border-color .2s, background .2s, color .2s;
+    }
+    .chip:hover { border-color: var(--mauve); }
+    .chip.is-active { background: var(--ink); border-color: var(--ink); color: var(--white); }
+
     .file-drop {
       border: 1px dashed var(--mid); padding: 1.6rem 1rem; text-align:center;
       cursor:pointer; transition: border-color .2s, background .2s;
@@ -188,8 +197,14 @@
           <p class="hint">Gambar ini disimpan secara peribadi — hanya kami yang boleh lihat.</p>
         </div>
         <div class="field">
-          <label for="size">Saiz Bookmark (jika tahu)</label>
-          <input type="text" id="size" name="size" placeholder="cth: Postcard, A5 — atau biar kosong"/>
+          <label>Jenis Karya</label>
+          <div class="chip-group" id="chipGroup">
+            <button type="button" class="chip" data-value="Portrait Bookmark I">Portrait Bookmark I</button>
+            <button type="button" class="chip" data-value="Custom Portrait">Custom Portrait</button>
+            <button type="button" class="chip" data-value="Bookmark Set — Portrait of 4">Bookmark Set — Portrait of 4</button>
+            <button type="button" class="chip" data-value="Lukis Sahaja">Lukis Sahaja</button>
+          </div>
+          <input type="text" id="size" name="size" placeholder="Atau taip sendiri — cth: saiz, kuantiti, butiran lain"/>
         </div>
       </div>
 
@@ -233,6 +248,23 @@
   const formView = document.getElementById('formView');
   const successView = document.getElementById('successView');
   const queueNumberEl = document.getElementById('queueNumber');
+  const chipGroup = document.getElementById('chipGroup');
+  const sizeInput = document.getElementById('size');
+  const chips = Array.from(chipGroup.querySelectorAll('.chip'));
+
+  function syncChipActive() {
+    const v = sizeInput.value.trim();
+    chips.forEach(c => c.classList.toggle('is-active', c.dataset.value === v));
+  }
+
+  chipGroup.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    sizeInput.value = chip.dataset.value;
+    syncChipActive();
+  });
+
+  sizeInput.addEventListener('input', syncChipActive);
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
