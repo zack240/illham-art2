@@ -97,7 +97,8 @@
     .wizard-nav { display:flex; align-items:center; gap:1rem; margin-top:.5rem; }
     .nav-btn {
       font-family:'DM Sans', sans-serif; font-size:.7rem; letter-spacing:.2em;
-      text-transform:uppercase; cursor:pointer; border:none; transition: background .25s, opacity .2s, color .2s;
+      text-transform:uppercase; cursor:pointer; border:none; white-space:nowrap;
+      transition: background .25s, opacity .2s, color .2s;
     }
     .next-btn {
       margin-left:auto; background: var(--ink); color: var(--white);
@@ -108,6 +109,12 @@
     .back-btn { background:transparent; color: var(--mid); padding:1rem .3rem; }
     .back-btn:hover { color: var(--ink); }
     .back-btn.is-hidden { visibility:hidden; }
+
+    @media (max-width: 480px) {
+      .nav-btn { font-size:.62rem; letter-spacing:.08em; }
+      .next-btn { padding:.9rem 1.3rem; }
+      .wizard-nav { gap:.6rem; }
+    }
 
     .msg { font-size:.82rem; padding:.9rem 1rem; display:none; }
     .msg.error { display:block; background:#FBEAE7; color: var(--error); }
