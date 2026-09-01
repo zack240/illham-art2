@@ -55,9 +55,20 @@
     }
     h1 em { font-style: italic; color: var(--charcoal); }
 
-    .lede { font-size:.9rem; font-weight:300; color: var(--mid); line-height:1.8; margin-bottom: 2.4rem; max-width: 46ch; }
+    .lede { font-size:.9rem; font-weight:300; color: var(--mid); line-height:1.8; margin-bottom: 2rem; max-width: 46ch; }
+
+    /* PROGRESS */
+    .progress-wrap { margin-bottom: 2.2rem; }
+    .progress-track { height:3px; background: var(--light); border-radius:2px; overflow:hidden; }
+    .progress-fill { height:100%; width:20%; background: var(--charcoal); transition: width .35s ease; }
+    .step-label { font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color: var(--mid); margin-top:.7rem; }
 
     form { display:flex; flex-direction:column; gap: 1.5rem; }
+
+    /* STEPS */
+    .step { display:none; flex-direction:column; gap:1.5rem; animation: stepIn .3s ease; }
+    .step.active { display:flex; }
+    @keyframes stepIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
 
     .field label {
       display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
@@ -82,14 +93,21 @@
     .file-drop p { font-size:.82rem; color: var(--mid); }
     .file-drop .fname { color: var(--ink); font-weight:500; margin-top:.4rem; }
 
-    .submit-btn {
-      background: var(--ink); color: var(--white); border:none;
-      padding:1rem 2rem; font-family:'DM Sans', sans-serif; font-size:.7rem;
-      letter-spacing:.2em; text-transform:uppercase; cursor:pointer;
-      transition: background .25s; margin-top:.5rem;
+    /* WIZARD NAV */
+    .wizard-nav { display:flex; align-items:center; gap:1rem; margin-top:.5rem; }
+    .nav-btn {
+      font-family:'DM Sans', sans-serif; font-size:.7rem; letter-spacing:.2em;
+      text-transform:uppercase; cursor:pointer; border:none; transition: background .25s, opacity .2s, color .2s;
     }
-    .submit-btn:hover:not(:disabled) { background: var(--charcoal); }
-    .submit-btn:disabled { opacity:.6; cursor: not-allowed; }
+    .next-btn {
+      margin-left:auto; background: var(--ink); color: var(--white);
+      padding:1rem 2rem;
+    }
+    .next-btn:hover:not(:disabled) { background: var(--charcoal); }
+    .next-btn:disabled { opacity:.6; cursor:not-allowed; }
+    .back-btn { background:transparent; color: var(--mid); padding:1rem .3rem; }
+    .back-btn:hover { color: var(--ink); }
+    .back-btn.is-hidden { visibility:hidden; }
 
     .msg { font-size:.82rem; padding:.9rem 1rem; display:none; }
     .msg.error { display:block; background:#FBEAE7; color: var(--error); }
@@ -115,46 +133,63 @@
   <div id="formView">
     <div class="kicker"><span></span>Custom Order</div>
     <h1>Tempah bookmark <em>anda sendiri.</em></h1>
-    <p class="lede">Isi butiran di bawah dan muat naik gambar rujukan untuk lukisan anda. Kami akan hubungi anda melalui WhatsApp/emel untuk pengesahan harga dan tarikh siap.</p>
+    <p class="lede">Jawab beberapa soalan ringkas dan muat naik gambar rujukan untuk lukisan anda. Kami akan hubungi anda melalui WhatsApp/emel untuk pengesahan harga dan tarikh siap.</p>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <p class="step-label">Langkah <span id="stepNow">1</span> daripada <span id="stepTotal">5</span></p>
+    </div>
 
     <div id="errorMsg" class="msg"></div>
 
-    <form id="orderForm">
-      <div class="field">
-        <label for="customerName">Nama Penuh</label>
-        <input type="text" id="customerName" name="customerName" required autocomplete="name"/>
+    <form id="orderForm" novalidate>
+      <div class="step active" data-step="1">
+        <div class="field">
+          <label for="customerName">Nama Penuh</label>
+          <input type="text" id="customerName" name="customerName" autocomplete="name"/>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="email">Emel</label>
-        <input type="email" id="email" name="email" required autocomplete="email"/>
+      <div class="step" data-step="2">
+        <div class="field">
+          <label for="email">Emel</label>
+          <input type="email" id="email" name="email" autocomplete="email"/>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="phone">No. Telefon (WhatsApp)</label>
-        <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="01X-XXXXXXX"/>
+      <div class="step" data-step="3">
+        <div class="field">
+          <label for="phone">No. Telefon (WhatsApp)</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="01X-XXXXXXX"/>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="address">Alamat Penghantaran</label>
-        <textarea id="address" name="address" required placeholder="Alamat penuh termasuk poskod dan negeri"></textarea>
+      <div class="step" data-step="4">
+        <div class="field">
+          <label for="address">Alamat Penghantaran</label>
+          <textarea id="address" name="address" placeholder="Alamat penuh termasuk poskod dan negeri"></textarea>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="size">Saiz Bookmark (jika tahu)</label>
-        <input type="text" id="size" name="size" placeholder="cth: Postcard, A5 — atau biar kosong"/>
+      <div class="step" data-step="5">
+        <div class="field">
+          <label for="photo">Gambar Rujukan untuk Dilukis</label>
+          <label class="file-drop" id="fileDrop" for="photo">
+            <input type="file" id="photo" name="photo" accept="image/*"/>
+            <p id="fileHint">Klik untuk pilih gambar (JPG/PNG, maks 8MB)</p>
+          </label>
+          <p class="hint">Gambar ini disimpan secara peribadi — hanya kami yang boleh lihat.</p>
+        </div>
+        <div class="field">
+          <label for="size">Saiz Bookmark (jika tahu)</label>
+          <input type="text" id="size" name="size" placeholder="cth: Postcard, A5 — atau biar kosong"/>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="photo">Gambar Rujukan untuk Dilukis</label>
-        <label class="file-drop" id="fileDrop" for="photo">
-          <input type="file" id="photo" name="photo" accept="image/*" required/>
-          <p id="fileHint">Klik untuk pilih gambar (JPG/PNG, maks 8MB)</p>
-        </label>
-        <p class="hint">Gambar ini disimpan secara peribadi — hanya kami yang boleh lihat.</p>
+      <div class="wizard-nav">
+        <button type="button" class="nav-btn back-btn is-hidden" id="backBtn">← Kembali</button>
+        <button type="submit" class="nav-btn next-btn" id="nextBtn">Seterusnya →</button>
       </div>
-
-      <button type="submit" class="submit-btn" id="submitBtn">Hantar Tempahan</button>
     </form>
   </div>
 
@@ -175,9 +210,15 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const MAX_FILE_BYTES = 8 * 1024 * 1024;
+  const TOTAL_STEPS = 5;
+  let currentStep = 1;
 
   const form = document.getElementById('orderForm');
-  const submitBtn = document.getElementById('submitBtn');
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const progressFill = document.getElementById('progressFill');
+  const stepNowEl = document.getElementById('stepNow');
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
   const errorMsg = document.getElementById('errorMsg');
   const fileInput = document.getElementById('photo');
   const fileDrop = document.getElementById('fileDrop');
@@ -210,10 +251,62 @@
     errorMsg.textContent = '';
   }
 
+  function showStep(n) {
+    steps.forEach(s => s.classList.toggle('active', Number(s.dataset.step) === n));
+    progressFill.style.width = (n / TOTAL_STEPS * 100) + '%';
+    stepNowEl.textContent = n;
+    backBtn.classList.toggle('is-hidden', n === 1);
+    nextBtn.textContent = n === TOTAL_STEPS ? 'Hantar Tempahan' : 'Seterusnya →';
+    if (n === TOTAL_STEPS) return;
+    const activeStep = document.querySelector(`.step[data-step="${n}"]`);
+    const focusable = activeStep.querySelector('input[type=text], input[type=email], input[type=tel], textarea');
+    if (focusable) setTimeout(() => focusable.focus(), 60);
+  }
+
+  function validateStep(n) {
+    clearError();
+    if (n === 1) {
+      const v = document.getElementById('customerName').value.trim();
+      if (!v) { showError('Sila isi nama penuh anda.'); return false; }
+    } else if (n === 2) {
+      const v = document.getElementById('email').value.trim();
+      if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { showError('Sila isi emel yang sah.'); return false; }
+    } else if (n === 3) {
+      const v = document.getElementById('phone').value.trim();
+      if (!v || v.replace(/\D/g, '').length < 9) { showError('Sila isi no. telefon yang sah.'); return false; }
+    } else if (n === 4) {
+      const v = document.getElementById('address').value.trim();
+      if (!v) { showError('Sila isi alamat penghantaran.'); return false; }
+    } else if (n === 5) {
+      const file = fileInput.files[0];
+      if (!file) { showError('Sila pilih gambar rujukan.'); return false; }
+      if (!file.type.startsWith('image/')) { showError('Fail mesti gambar (JPG/PNG/WebP dll).'); return false; }
+      if (file.size > MAX_FILE_BYTES) { showError('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.'); return false; }
+    }
+    return true;
+  }
+
+  backBtn.addEventListener('click', () => {
+    if (currentStep === 1) return;
+    currentStep--;
+    clearError();
+    showStep(currentStep);
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    clearError();
+    if (!validateStep(currentStep)) return;
 
+    if (currentStep < TOTAL_STEPS) {
+      currentStep++;
+      showStep(currentStep);
+      return;
+    }
+
+    await submitOrder();
+  });
+
+  async function submitOrder() {
     const customerName = document.getElementById('customerName').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -221,21 +314,9 @@
     const size = document.getElementById('size').value.trim();
     const file = fileInput.files[0];
 
-    if (!customerName || !email || !phone || !address || !file) {
-      showError('Sila lengkapkan semua ruangan wajib dan pilih gambar rujukan.');
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      showError('Fail mesti gambar (JPG/PNG/WebP dll).');
-      return;
-    }
-    if (file.size > MAX_FILE_BYTES) {
-      showError('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.');
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Menghantar...';
+    nextBtn.disabled = true;
+    backBtn.disabled = true;
+    nextBtn.textContent = 'Menghantar...';
 
     try {
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
@@ -271,11 +352,11 @@
       successView.style.display = 'block';
     } catch (err) {
       showError(err.message || 'Ralat tidak dijangka berlaku. Sila cuba lagi.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Hantar Tempahan';
+      nextBtn.disabled = false;
+      backBtn.disabled = false;
+      nextBtn.textContent = 'Hantar Tempahan';
     }
-  });
+  }
 </script>
 
 </body>
