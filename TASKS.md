@@ -14,7 +14,13 @@ Shared progress log between the WFH laptop and the 10camp office PC. Update this
 - (nothing queued)
 
 ## Handoff notes
-- 2026-11-01 (WFH laptop): file created. Repo clean, `main` up to date with `origin/main`, last commit `1ac626f` (2026-08-15) — live order-tracking board on index.html.
+- 2026-11-01 (WFH laptop): file created, then rebased on top of 28 commits pushed from elsewhere (likely the office PC) between 2026-08-15 and now that this laptop hadn't pulled yet — this laptop's memory of this repo was stale. Worth re-checking `git log` for real state before assuming where things left off, going forward. Repo now clean, `main` up to date with `origin/main`, last commit `ceec355`.
 
 ## Done (recent)
-- 2026-08-15 — `1ac626f` feat: tambah jadual status tempahan (live tracking) di index sebelum Karya Terkini
+- `ceec355` Add estimated size note to hero description
+- `d27fd5e` Change wording from budi bicara anda to budi bicara sesama
+- `a8cf182` Change Kemasan step wording from disegel to berlamina
+- `b53e69b` Round sharp button/image corners site-wide; make Tanya di WA buttons WhatsApp green
+- `ae2f50d` Add email notification for new orders via Resend + pg_net trigger
+- `ed199d4` feat: tukar order.html jadi wizard step-by-step (5 langkah)
+- (full history: `git log --oneline`)
