@@ -193,6 +193,23 @@
       color: var(--mid); margin-top:.2rem;
     }
 
+    /* KARYA */
+    .gallery-admin-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .gallery-admin-card { background: var(--white); border: 1px solid var(--light); overflow:hidden; }
+    .gallery-admin-card img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; background: var(--light); }
+    .gallery-admin-card .gac-info { padding: .7rem .9rem; }
+    .gallery-admin-card .gac-cat { font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color: var(--mid); }
+    .gallery-admin-card .gac-title { font-family:'Playfair Display', serif; font-size:.95rem; margin:.2rem 0 .6rem; }
+    .gallery-admin-card .gac-actions { display:flex; gap:.4rem; flex-wrap: wrap; }
+    .gallery-admin-card .gac-actions button {
+      font-size:.6rem; letter-spacing:.06em; text-transform:uppercase; background:none;
+      border:1px solid var(--mid); color: var(--charcoal); padding:.35rem .55rem; cursor:pointer; border-radius:4px;
+    }
+    .gallery-admin-card .gac-actions button:hover:not(:disabled) { background: var(--light); }
+    .gallery-admin-card .gac-actions button.danger { border-color: var(--error); color: var(--error); }
+    .gallery-admin-card .gac-actions button.danger:hover:not(:disabled) { background:#FBEAE7; }
+    .gallery-admin-card .gac-actions button:disabled { opacity:.4; cursor:not-allowed; }
+
     /* TETAPAN */
     .settings-card { background: var(--white); border: 1px solid var(--light); padding: 1.6rem 1.8rem; max-width: 460px; }
     .settings-card h2 { font-family:'Playfair Display', serif; font-weight:400; font-size:1.25rem; margin-bottom:.6rem; }
@@ -254,6 +271,7 @@
     <button class="navlink" data-section="tempahan">Semua Tempahan</button>
     <button class="navlink" data-section="pelanggan">Pelanggan</button>
     <button class="navlink" data-section="kewangan">Kewangan</button>
+    <button class="navlink" data-section="karya">Karya</button>
     <button class="navlink" data-section="tetapan">Tetapan</button>
   </nav>
   <main>
@@ -284,6 +302,34 @@
     <section id="section-kewangan" class="section" style="display:none">
       <div class="stats-grid" id="financeStatsGrid"></div>
       <div id="financeList"></div>
+    </section>
+
+    <section id="section-karya" class="section" style="display:none">
+      <div class="settings-card" style="max-width:520px;margin-bottom:1.8rem">
+        <h2>Tambah Karya</h2>
+        <p class="sub">Muat naik gambar karya siap untuk dipaparkan di "Semua Karya" dalam gallery.html.</p>
+        <div id="galleryUploadMsg" class="msg"></div>
+        <form id="galleryUploadForm">
+          <div class="field">
+            <label for="galleryTitle">Tajuk</label>
+            <input type="text" id="galleryTitle" required/>
+          </div>
+          <div class="field">
+            <label for="galleryCategory">Kategori</label>
+            <select id="galleryCategory" required>
+              <option value="bookmark">Bookmark</option>
+              <option value="portrait">Portrait</option>
+              <option value="gift_set">Gift Set</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="galleryImage">Gambar</label>
+            <input type="file" id="galleryImage" accept="image/*" required/>
+          </div>
+          <button type="submit" class="btn btn-small" id="galleryUploadBtn">Tambah Karya</button>
+        </form>
+      </div>
+      <div id="galleryItemsList" class="gallery-admin-grid"></div>
     </section>
 
     <section id="section-tetapan" class="section" style="display:none">
@@ -334,10 +380,20 @@
   const financeStatsGrid = document.getElementById('financeStatsGrid');
   const financeList = document.getElementById('financeList');
   const customerFilterBanner = document.getElementById('customerFilterBanner');
+  const galleryUploadForm = document.getElementById('galleryUploadForm');
+  const galleryUploadBtn = document.getElementById('galleryUploadBtn');
+  const galleryUploadMsg = document.getElementById('galleryUploadMsg');
+  const galleryTitle = document.getElementById('galleryTitle');
+  const galleryCategory = document.getElementById('galleryCategory');
+  const galleryImage = document.getElementById('galleryImage');
+  const galleryItemsList = document.getElementById('galleryItemsList');
+
+  const GALLERY_CATEGORY_LABELS = { bookmark: 'Bookmark', portrait: 'Portrait', gift_set: 'Gift Set' };
 
   let currentFilter = 'active';
   let allOrders = [];
   let customerEmailFilter = null;
+  let galleryItems = [];
   let mfaFactorId = null;
 
   function escapeHtml(str) {
@@ -553,7 +609,127 @@
     renderRingkasan();
     renderPelanggan();
     renderKewangan();
+    loadGalleryItems();
   }
+
+  async function loadGalleryItems() {
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      galleryItemsList.innerHTML = `<p style="color:var(--error);font-size:.85rem;">Gagal muat karya: ${escapeHtml(error.message)}</p>`;
+      return;
+    }
+    galleryItems = data || [];
+    renderGalleryAdmin();
+  }
+
+  function galleryPublicUrl(path) {
+    return supabase.storage.from('gallery-photos').getPublicUrl(path).data.publicUrl;
+  }
+
+  function renderGalleryAdmin() {
+    if (!galleryItems.length) {
+      galleryItemsList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Tiada karya lagi. Tambah guna borang di atas.</p>';
+      return;
+    }
+
+    galleryItemsList.innerHTML = galleryItems.map((item, idx) => `
+      <div class="gallery-admin-card" data-id="${item.id}">
+        <img src="${galleryPublicUrl(item.image_path)}" alt="${escapeHtml(item.title)}"/>
+        <div class="gac-info">
+          <div class="gac-cat">${GALLERY_CATEGORY_LABELS[item.category] || item.category}</div>
+          <div class="gac-title">${escapeHtml(item.title)}</div>
+          <div class="gac-actions">
+            <button type="button" data-action="move-up" ${idx === 0 ? 'disabled' : ''}>&uarr; Naik</button>
+            <button type="button" data-action="move-down" ${idx === galleryItems.length - 1 ? 'disabled' : ''}>&darr; Turun</button>
+            <button type="button" class="danger" data-action="delete-item">Padam</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    galleryItemsList.querySelectorAll('.gallery-admin-card').forEach(card => {
+      const id = card.dataset.id;
+      const item = galleryItems.find(g => g.id === id);
+      const idx = galleryItems.indexOf(item);
+
+      const upBtn = card.querySelector('[data-action="move-up"]');
+      if (upBtn && !upBtn.disabled) {
+        upBtn.addEventListener('click', () => swapGalleryOrder(idx, idx - 1));
+      }
+      const downBtn = card.querySelector('[data-action="move-down"]');
+      if (downBtn && !downBtn.disabled) {
+        downBtn.addEventListener('click', () => swapGalleryOrder(idx, idx + 1));
+      }
+      card.querySelector('[data-action="delete-item"]').addEventListener('click', () => deleteGalleryItem(item));
+    });
+  }
+
+  async function swapGalleryOrder(i, j) {
+    const a = galleryItems[i];
+    const b = galleryItems[j];
+    const [orderA, orderB] = [a.display_order, b.display_order];
+    await Promise.all([
+      supabase.from('gallery_items').update({ display_order: orderB }).eq('id', a.id),
+      supabase.from('gallery_items').update({ display_order: orderA }).eq('id', b.id),
+    ]);
+    await loadGalleryItems();
+  }
+
+  async function deleteGalleryItem(item) {
+    if (!confirm(`Padam karya "${item.title}"? Tindakan ini tidak boleh dibatalkan.`)) return;
+    await supabase.storage.from('gallery-photos').remove([item.image_path]);
+    const { error } = await supabase.from('gallery_items').delete().eq('id', item.id);
+    if (error) {
+      alert('Gagal padam: ' + error.message);
+      return;
+    }
+    await loadGalleryItems();
+  }
+
+  galleryUploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    galleryUploadMsg.className = 'msg';
+    galleryUploadBtn.disabled = true;
+    galleryUploadBtn.textContent = 'Memuat naik...';
+
+    const file = galleryImage.files[0];
+    const title = galleryTitle.value.trim();
+    const category = galleryCategory.value;
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = `${crypto.randomUUID()}.${ext}`;
+
+    const { error: upErr } = await supabase.storage.from('gallery-photos').upload(path, file, { contentType: file.type });
+    if (upErr) {
+      galleryUploadMsg.textContent = 'Gagal muat naik gambar: ' + upErr.message;
+      galleryUploadMsg.classList.add('error');
+      galleryUploadBtn.disabled = false;
+      galleryUploadBtn.textContent = 'Tambah Karya';
+      return;
+    }
+
+    const nextOrder = galleryItems.length ? Math.max(...galleryItems.map(g => g.display_order)) + 1 : 0;
+    const { error: insErr } = await supabase.from('gallery_items').insert({
+      title, category, image_path: path, display_order: nextOrder,
+    });
+
+    galleryUploadBtn.disabled = false;
+    galleryUploadBtn.textContent = 'Tambah Karya';
+
+    if (insErr) {
+      galleryUploadMsg.textContent = 'Gagal simpan rekod: ' + insErr.message;
+      galleryUploadMsg.classList.add('error');
+      return;
+    }
+
+    galleryUploadForm.reset();
+    galleryUploadMsg.textContent = 'Karya ditambah.';
+    galleryUploadMsg.classList.add('ok');
+    await loadGalleryItems();
+  });
 
   function fmtRM(n) {
     return 'RM ' + (n ?? 0).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

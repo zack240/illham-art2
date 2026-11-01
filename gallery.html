@@ -125,8 +125,10 @@
     .grid-section h2 em { font-style:italic; }
     .art-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem; }
     .art-thumb { cursor:none;overflow:hidden; }
-    .art-thumb-img { aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;transition:transform .5s ease; }
+    .art-thumb-img { aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;transition:transform .5s ease;overflow:hidden;background:#d8cfc4; }
+    .art-thumb-img img { width:100%;height:100%;object-fit:cover; }
     .art-thumb:hover .art-thumb-img { transform:scale(1.04); }
+    .art-grid-empty { grid-column:1/-1;color:var(--mid);font-size:.85rem; }
     .art-thumb-info { padding:.8rem 0; }
     .art-thumb-cat { font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);margin-bottom:.3rem; }
     .art-thumb-name { font-family:'Playfair Display',serif;font-size:.95rem;font-weight:400; }
@@ -305,55 +307,8 @@
 <section class="grid-section reveal">
   <p class="sec-label">Semua Karya</p>
   <h2>Koleksi <em>Lengkap</em></h2>
-  <div class="art-grid">
-    <div class="art-thumb">
-      <div class="art-thumb-img c-blush">
-        <svg width="32" height="54" viewBox="0 0 32 54" fill="none"><path d="M4 2h24v50L16 42 4 52V2z" fill="white" opacity=".2"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Bookmark</p><p class="art-thumb-name">Floral Series I</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-dusty">
-        <svg width="40" height="54" viewBox="0 0 40 54" fill="none"><rect x="3" y="3" width="34" height="48" rx="1" fill="white" opacity=".1"/><circle cx="20" cy="20" r="10" stroke="white" stroke-width=".8" opacity=".3"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Portrait</p><p class="art-thumb-name">Custom Portrait</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-sage">
-        <svg width="54" height="54" viewBox="0 0 54 54" fill="none"><path d="M4 2h14v50L11 42 4 52V2z" fill="white" opacity=".2"/><path d="M20 2h14v50L27 42 20 52V2z" fill="white" opacity=".15"/><path d="M36 2h14v50L43 42 36 52V2z" fill="white" opacity=".1"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Gift Set</p><p class="art-thumb-name">Forest & Fog</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-mauve">
-        <svg width="40" height="54" viewBox="0 0 40 54" fill="none"><rect x="3" y="3" width="34" height="48" rx="1" fill="white" opacity=".1"/><circle cx="20" cy="18" r="8" stroke="white" stroke-width=".8" opacity=".3"/><ellipse cx="20" cy="13" rx="5" ry="6" fill="white" opacity=".12"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Portrait</p><p class="art-thumb-name">Family Portrait</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-warm">
-        <svg width="32" height="54" viewBox="0 0 32 54" fill="none"><path d="M4 2h24v50L16 42 4 52V2z" fill="white" opacity=".2"/><path d="M10 18 Q16 10 22 18 Q16 26 10 18z" fill="white" opacity=".25"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Bookmark</p><p class="art-thumb-name">Floral Series II</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-green">
-        <svg width="32" height="54" viewBox="0 0 32 54" fill="none"><path d="M4 2h24v50L16 42 4 52V2z" fill="white" opacity=".2"/><line x1="10" y1="18" x2="22" y2="18" stroke="white" stroke-width=".8" opacity=".4"/><line x1="10" y1="24" x2="19" y2="24" stroke="white" stroke-width=".6" opacity=".3"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Bookmark</p><p class="art-thumb-name">Minimal Series</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-blush">
-        <svg width="40" height="54" viewBox="0 0 40 54" fill="none"><rect x="3" y="3" width="34" height="48" rx="1" fill="white" opacity=".1"/><circle cx="20" cy="22" r="12" stroke="white" stroke-width=".8" opacity=".25"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Portrait</p><p class="art-thumb-name">Solo Portrait</p></div>
-    </div>
-    <div class="art-thumb">
-      <div class="art-thumb-img c-dusty">
-        <svg width="54" height="54" viewBox="0 0 54 54" fill="none"><path d="M4 2h14v50L11 42 4 52V2z" fill="white" opacity=".18"/><path d="M20 2h14v50L27 42 20 52V2z" fill="white" opacity=".13"/></svg>
-      </div>
-      <div class="art-thumb-info"><p class="art-thumb-cat">Gift Set</p><p class="art-thumb-name">Duo Set</p></div>
-    </div>
+  <div class="art-grid" id="artGrid">
+    <p class="art-grid-empty">Memuatkan karya...</p>
   </div>
 </section>
 
@@ -412,6 +367,48 @@
     </div>
   </div>
 </footer>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://hvmdilqxekrbfvohmozp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_gDwTApSzTeujZgyz3Jbquw_sbkDkVvO';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const CATEGORY_LABELS = { bookmark: 'Bookmark', portrait: 'Portrait', gift_set: 'Gift Set' };
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  (async () => {
+    const artGrid = document.getElementById('artGrid');
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error || !data?.length) {
+      artGrid.innerHTML = '<p class="art-grid-empty">Karya akan dipaparkan di sini tidak lama lagi.</p>';
+      return;
+    }
+
+    artGrid.innerHTML = data.map(item => {
+      const url = supabase.storage.from('gallery-photos').getPublicUrl(item.image_path).data.publicUrl;
+      return `
+        <div class="art-thumb">
+          <div class="art-thumb-img"><img src="${url}" alt="${escapeHtml(item.title)}" loading="lazy"/></div>
+          <div class="art-thumb-info">
+            <p class="art-thumb-cat">${CATEGORY_LABELS[item.category] || escapeHtml(item.category)}</p>
+            <p class="art-thumb-name">${escapeHtml(item.title)}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+  })();
+</script>
 
 <script>
   // Cursor
