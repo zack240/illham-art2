@@ -271,6 +271,8 @@
   async function handlePostLogin() {
     const { data: aalData, error: aalErr } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aalErr) {
+      loginMsg.className = 'msg error';
+      loginMsg.textContent = 'Ralat semak status 2FA: ' + aalErr.message;
       showView('login');
       return;
     }
@@ -280,7 +282,13 @@
       return;
     }
 
-    const { data: factorsData } = await supabase.auth.mfa.listFactors();
+    const { data: factorsData, error: factorsErr } = await supabase.auth.mfa.listFactors();
+    if (factorsErr) {
+      loginMsg.className = 'msg error';
+      loginMsg.textContent = 'Ralat senarai faktor 2FA: ' + factorsErr.message;
+      showView('login');
+      return;
+    }
     const verifiedFactor = (factorsData?.totp || []).find(f => f.status === 'verified');
 
     if (verifiedFactor) {
@@ -386,7 +394,13 @@
       loginMsg.classList.add('error');
       return;
     }
-    await handlePostLogin();
+    try {
+      await handlePostLogin();
+    } catch (err) {
+      loginMsg.className = 'msg error';
+      loginMsg.textContent = 'Ralat tidak dijangka: ' + (err?.message || err);
+      showView('login');
+    }
   });
 
   logoutBtn.addEventListener('click', async () => {
