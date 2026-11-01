@@ -83,8 +83,22 @@
     .msg.error { display:block; background:#FBEAE7; color: var(--error); }
     .msg.ok { display:block; background:#E9F1EA; color: var(--ok); }
 
+    /* NAVBAR */
+    .navbar {
+      display:flex; gap:.3rem; padding: 0 2rem; background: var(--white);
+      border-bottom: 1px solid var(--light); overflow-x:auto;
+    }
+    .navlink {
+      font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color: var(--mid);
+      background:none; border:none; border-bottom: 2px solid transparent;
+      padding: 1rem .9rem; cursor:pointer; white-space:nowrap; transition: color .2s, border-color .2s;
+    }
+    .navlink:hover { color: var(--charcoal); }
+    .navlink.active { color: var(--ink); border-bottom-color: var(--ink); }
+
     /* DASHBOARD */
     main { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .section { display: block; }
     .toolbar { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-bottom: 1.6rem; }
     .tab {
       font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color: var(--mid);
@@ -135,6 +149,55 @@
     #mfaQrWrap svg { width: 200px; height: 200px; max-width: 100%; }
     .secret-code { font-size:.72rem; color: var(--mid); text-align:center; margin-bottom:1.4rem; word-break:break-all; }
 
+    /* STATS / RINGKASAN & KEWANGAN */
+    .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 1.8rem; }
+    .stat-card { background: var(--white); border: 1px solid var(--light); padding: 1.2rem 1.4rem; }
+    .stat-card .stat-label { font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color: var(--mid); margin-bottom:.5rem; }
+    .stat-card .stat-value { font-family:'Playfair Display', serif; font-size: 1.7rem; color: var(--ink); }
+    .stat-card .stat-sub { font-size:.72rem; color: var(--mid); margin-top:.3rem; }
+    .status-breakdown { background: var(--white); border: 1px solid var(--light); padding: 1.4rem 1.6rem; }
+    .status-breakdown h3 { font-family:'Playfair Display', serif; font-weight:400; font-size:1.1rem; margin-bottom: 1rem; }
+    .status-row { display:flex; justify-content:space-between; align-items:center; padding: .5rem 0; border-bottom: 1px solid var(--light); font-size:.85rem; }
+    .status-row:last-child { border-bottom: none; }
+    .status-row .status-count { color: var(--charcoal); font-weight:600; }
+
+    /* PELANGGAN */
+    .customer-row {
+      background: var(--white); border: 1px solid var(--light); padding: 1.2rem 1.6rem; margin-bottom: .8rem;
+      display:flex; justify-content:space-between; align-items:center; gap: 1rem; flex-wrap: wrap; cursor:pointer;
+      transition: border-color .2s;
+    }
+    .customer-row:hover { border-color: var(--mauve); }
+    .customer-row .customer-name { font-family:'Playfair Display', serif; font-size:1.1rem; color: var(--ink); }
+    .customer-row .customer-meta { font-size:.78rem; color: var(--mid); margin-top:.2rem; }
+    .customer-row .customer-stats { text-align:right; font-size:.8rem; color: var(--charcoal); }
+    .customer-row .customer-stats strong { font-family:'Playfair Display', serif; font-size:1.1rem; color: var(--ink); }
+
+    .customer-filter-banner {
+      background: var(--light); border: 1px solid var(--mauve); padding: .7rem 1rem; margin-bottom: 1.2rem;
+      display:flex; justify-content:space-between; align-items:center; font-size:.8rem; color: var(--charcoal);
+    }
+    .customer-filter-banner button { background:none; border:none; text-decoration:underline; cursor:pointer; color: var(--charcoal); font-size:.75rem; }
+
+    /* KEWANGAN */
+    .finance-row {
+      background: var(--white); border: 1px solid var(--light); padding: 1.1rem 1.6rem; margin-bottom: .7rem;
+      display:flex; justify-content:space-between; align-items:center; gap: 1rem; flex-wrap: wrap;
+    }
+    .finance-row .finance-main { font-size:.85rem; }
+    .finance-row .finance-main b { font-family:'Playfair Display', serif; }
+    .finance-row .finance-meta { font-size:.76rem; color: var(--mid); margin-top:.2rem; }
+    .finance-row .finance-amount { font-family:'Playfair Display', serif; font-size:1.2rem; color: var(--ink); text-align:right; }
+    .finance-row .finance-amount .badge {
+      display:block; font-family:'DM Sans', sans-serif; font-size:.64rem; letter-spacing:.08em; text-transform:uppercase;
+      color: var(--mid); margin-top:.2rem;
+    }
+
+    /* TETAPAN */
+    .settings-card { background: var(--white); border: 1px solid var(--light); padding: 1.6rem 1.8rem; max-width: 460px; }
+    .settings-card h2 { font-family:'Playfair Display', serif; font-weight:400; font-size:1.25rem; margin-bottom:.6rem; }
+    .settings-card .sub { font-size:.82rem; color: var(--mid); margin-bottom: 1.3rem; }
+
     @media (max-width: 760px) {
       .order-card { grid-template-columns: 1fr; }
       .order-left { border-right:none; border-bottom:1px solid var(--light); }
@@ -184,23 +247,53 @@
 <div id="dashboardView" style="display:none">
   <header>
     <img src="illham-logo.png?v=2" alt="illham"/>
-    <div style="display:flex;gap:.6rem">
-      <button class="logout-btn" id="resetMfaBtn">Tetapkan Semula 2FA</button>
-      <button class="logout-btn" id="logoutBtn">Log Keluar</button>
-    </div>
+    <button class="logout-btn" id="logoutBtn">Log Keluar</button>
   </header>
+  <nav class="navbar">
+    <button class="navlink active" data-section="ringkasan">Ringkasan</button>
+    <button class="navlink" data-section="tempahan">Semua Tempahan</button>
+    <button class="navlink" data-section="pelanggan">Pelanggan</button>
+    <button class="navlink" data-section="kewangan">Kewangan</button>
+    <button class="navlink" data-section="tetapan">Tetapan</button>
+  </nav>
   <main>
-    <div class="toolbar">
-      <button class="tab active" data-filter="active">Aktif</button>
-      <button class="tab" data-filter="baru">Baru</button>
-      <button class="tab" data-filter="dalam_lukisan">Dalam Lukisan</button>
-      <button class="tab" data-filter="siap">Siap</button>
-      <button class="tab" data-filter="dihantar">Dihantar</button>
-      <button class="tab" data-filter="archived">Arkib</button>
-      <span class="count" id="orderCount"></span>
-    </div>
-    <div id="ordersList"></div>
-    <div id="emptyState" class="empty-state" style="display:none">Tiada tempahan dalam kategori ini.</div>
+
+    <section id="section-ringkasan" class="section">
+      <div class="stats-grid" id="statsGrid"></div>
+    </section>
+
+    <section id="section-tempahan" class="section" style="display:none">
+      <div id="customerFilterBanner" class="customer-filter-banner" style="display:none"></div>
+      <div class="toolbar">
+        <button class="tab active" data-filter="active">Aktif</button>
+        <button class="tab" data-filter="baru">Baru</button>
+        <button class="tab" data-filter="dalam_lukisan">Dalam Lukisan</button>
+        <button class="tab" data-filter="siap">Siap</button>
+        <button class="tab" data-filter="dihantar">Dihantar</button>
+        <button class="tab" data-filter="archived">Arkib</button>
+        <span class="count" id="orderCount"></span>
+      </div>
+      <div id="ordersList"></div>
+      <div id="emptyState" class="empty-state" style="display:none">Tiada tempahan dalam kategori ini.</div>
+    </section>
+
+    <section id="section-pelanggan" class="section" style="display:none">
+      <div id="customersList"></div>
+    </section>
+
+    <section id="section-kewangan" class="section" style="display:none">
+      <div class="stats-grid" id="financeStatsGrid"></div>
+      <div id="financeList"></div>
+    </section>
+
+    <section id="section-tetapan" class="section" style="display:none">
+      <div class="settings-card">
+        <h2>Keselamatan</h2>
+        <p class="sub">Urus pengesahan 2 langkah (2FA) untuk akaun admin ini. Guna ini jika anda tukar atau hilang telefon.</p>
+        <button class="btn-outline btn-small" id="resetMfaBtn">Tetapkan Semula 2FA</button>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -235,9 +328,16 @@
   const emptyState = document.getElementById('emptyState');
   const orderCount = document.getElementById('orderCount');
   const tabs = document.querySelectorAll('.tab');
+  const navLinks = document.querySelectorAll('.navlink');
+  const statsGrid = document.getElementById('statsGrid');
+  const customersList = document.getElementById('customersList');
+  const financeStatsGrid = document.getElementById('financeStatsGrid');
+  const financeList = document.getElementById('financeList');
+  const customerFilterBanner = document.getElementById('customerFilterBanner');
 
   let currentFilter = 'active';
   let allOrders = [];
+  let customerEmailFilter = null;
   let mfaFactorId = null;
 
   function escapeHtml(str) {
@@ -421,8 +521,19 @@
 
   function showDashboard() {
     showView('dashboard');
+    navLinks.forEach(l => l.classList.toggle('active', l.dataset.section === 'ringkasan'));
+    document.querySelectorAll('.section').forEach(s => s.style.display = s.id === 'section-ringkasan' ? 'block' : 'none');
     loadOrders();
   }
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      const target = link.dataset.section;
+      document.querySelectorAll('.section').forEach(s => s.style.display = s.id === `section-${target}` ? 'block' : 'none');
+    });
+  });
 
   async function loadOrders() {
     ordersList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Memuatkan...</p>';
@@ -439,6 +550,147 @@
     }
     allOrders = data || [];
     render();
+    renderRingkasan();
+    renderPelanggan();
+    renderKewangan();
+  }
+
+  function fmtRM(n) {
+    return 'RM ' + (n ?? 0).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderRingkasan() {
+    const active = allOrders.filter(o => !o.is_archived);
+    const now = new Date();
+    const thisMonth = active.filter(o => {
+      const d = new Date(o.created_at);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+    const revenueMonth = thisMonth.reduce((sum, o) => sum + (Number(o.price) || 0), 0);
+    const belumBayar = active.filter(o => o.payment_status === 'belum_bayar');
+
+    statsGrid.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Tempahan Bulan Ini</div>
+        <div class="stat-value">${thisMonth.length}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tempahan Aktif</div>
+        <div class="stat-value">${active.length}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Anggaran Revenue Bulan Ini</div>
+        <div class="stat-value">${fmtRM(revenueMonth)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Belum Bayar</div>
+        <div class="stat-value">${belumBayar.length}</div>
+        <div class="stat-sub">tempahan aktif</div>
+      </div>
+      <div class="status-breakdown" style="grid-column: 1 / -1">
+        <h3>Ikut Status</h3>
+        ${Object.entries(STATUS_LABELS).map(([v, l]) => `
+          <div class="status-row">
+            <span>${l}</span>
+            <span class="status-count">${active.filter(o => o.status === v).length}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderPelanggan() {
+    const byEmail = new Map();
+    allOrders.forEach(o => {
+      const key = o.email || '(tiada emel)';
+      if (!byEmail.has(key)) byEmail.set(key, []);
+      byEmail.get(key).push(o);
+    });
+
+    const customers = [...byEmail.entries()].map(([email, orders]) => {
+      const latest = orders.reduce((a, b) => new Date(a.created_at) > new Date(b.created_at) ? a : b);
+      const total = orders.reduce((sum, o) => sum + (Number(o.price) || 0), 0);
+      return { email, name: latest.customer_name, phone: latest.phone, count: orders.length, total, lastDate: latest.created_at };
+    }).sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate));
+
+    if (!customers.length) {
+      customersList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Tiada pelanggan lagi.</p>';
+      return;
+    }
+
+    customersList.innerHTML = customers.map(c => `
+      <div class="customer-row" data-email="${escapeHtml(c.email)}">
+        <div>
+          <div class="customer-name">${escapeHtml(c.name)}</div>
+          <div class="customer-meta">${escapeHtml(c.email)} · ${escapeHtml(c.phone)}</div>
+        </div>
+        <div class="customer-stats">
+          <strong>${c.count}</strong> tempahan · ${fmtRM(c.total)}<br/>
+          <span style="font-size:.7rem">Terakhir: ${new Date(c.lastDate).toLocaleDateString('ms-MY')}</span>
+        </div>
+      </div>
+    `).join('');
+
+    customersList.querySelectorAll('.customer-row').forEach(row => {
+      row.addEventListener('click', () => {
+        customerEmailFilter = row.dataset.email;
+        document.querySelectorAll('.navlink').forEach(l => l.classList.toggle('active', l.dataset.section === 'tempahan'));
+        document.querySelectorAll('.section').forEach(s => s.style.display = s.id === 'section-tempahan' ? 'block' : 'none');
+        render();
+      });
+    });
+  }
+
+  function renderKewangan() {
+    const unpaid = allOrders.filter(o => !o.is_archived && o.payment_status !== 'lunas');
+    const totalOutstanding = unpaid.reduce((sum, o) => sum + (Number(o.price) || 0), 0);
+    const depositCount = unpaid.filter(o => o.payment_status === 'deposit').length;
+
+    financeStatsGrid.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Jumlah Belum Selesai</div>
+        <div class="stat-value">${unpaid.length}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Anggaran Outstanding</div>
+        <div class="stat-value">${fmtRM(totalOutstanding)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Deposit Sahaja</div>
+        <div class="stat-value">${depositCount}</div>
+      </div>
+    `;
+
+    if (!unpaid.length) {
+      financeList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Semua tempahan aktif sudah lunas.</p>';
+      return;
+    }
+
+    financeList.innerHTML = unpaid
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      .map(o => `
+        <div class="finance-row" data-id="${o.id}">
+          <div class="finance-main">
+            <b>No. ${String(o.queue_number).padStart(4, '0')}</b> — ${escapeHtml(o.customer_name)}
+            <div class="finance-meta">${escapeHtml(o.email)} · ${new Date(o.created_at).toLocaleDateString('ms-MY')}</div>
+          </div>
+          <div class="finance-amount">
+            ${o.price != null ? fmtRM(o.price) : '—'}
+            <span class="badge">${PAYMENT_LABELS[o.payment_status] || o.payment_status}</span>
+          </div>
+        </div>
+      `).join('');
+
+    financeList.querySelectorAll('.finance-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const order = allOrders.find(o => o.id === row.dataset.id);
+        if (!order) return;
+        customerEmailFilter = order.email;
+        document.querySelectorAll('.navlink').forEach(l => l.classList.toggle('active', l.dataset.section === 'tempahan'));
+        document.querySelectorAll('.section').forEach(s => s.style.display = s.id === 'section-tempahan' ? 'block' : 'none');
+        render();
+      });
+    });
   }
 
   tabs.forEach(tab => {
@@ -446,15 +698,33 @@
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentFilter = tab.dataset.filter;
+      customerEmailFilter = null;
       render();
     });
   });
 
   function render() {
+    if (customerEmailFilter) {
+      customerFilterBanner.style.display = 'flex';
+      customerFilterBanner.innerHTML = `
+        <span>Menapis tempahan untuk: <strong>${escapeHtml(customerEmailFilter)}</strong></span>
+        <button type="button" id="clearCustomerFilter">Padam Tapisan</button>
+      `;
+      document.getElementById('clearCustomerFilter').addEventListener('click', () => {
+        customerEmailFilter = null;
+        render();
+      });
+    } else {
+      customerFilterBanner.style.display = 'none';
+      customerFilterBanner.innerHTML = '';
+    }
+
     let filtered;
     if (currentFilter === 'active') filtered = allOrders.filter(o => !o.is_archived);
     else if (currentFilter === 'archived') filtered = allOrders.filter(o => o.is_archived);
     else filtered = allOrders.filter(o => !o.is_archived && o.status === currentFilter);
+
+    if (customerEmailFilter) filtered = allOrders.filter(o => o.email === customerEmailFilter);
 
     orderCount.textContent = `${filtered.length} tempahan`;
 
@@ -614,6 +884,9 @@
       Object.assign(o, payload);
       statusEl.textContent = 'Disimpan.';
       statusEl.className = 'row-status ok';
+      renderRingkasan();
+      renderPelanggan();
+      renderKewangan();
     });
 
     card.querySelector('[data-action="toggle-archive"]').addEventListener('click', async () => {
@@ -627,6 +900,8 @@
       }
       o.is_archived = nextVal;
       render();
+      renderRingkasan();
+      renderKewangan();
     });
   }
 
