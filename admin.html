@@ -132,6 +132,9 @@
 
     .empty-state { text-align:center; padding: 4rem 1rem; color: var(--mid); font-size:.9rem; }
 
+    #mfaQrWrap svg { width: 200px; height: 200px; max-width: 100%; }
+    .secret-code { font-size:.72rem; color: var(--mid); text-align:center; margin-bottom:1.4rem; word-break:break-all; }
+
     @media (max-width: 760px) {
       .order-card { grid-template-columns: 1fr; }
       .order-left { border-right:none; border-bottom:1px solid var(--light); }
@@ -160,10 +163,31 @@
   </div>
 </div>
 
+<div id="mfaView" class="login-wrap" style="display:none">
+  <div class="login-card">
+    <h1 id="mfaTitle">Sediakan 2FA</h1>
+    <p class="sub" id="mfaSub">Imbas kod QR ini dengan Google Authenticator, kemudian masukkan kod 6-digit untuk sahkan.</p>
+    <div id="mfaMsg" class="msg"></div>
+    <div id="mfaQrWrap" style="text-align:center;margin-bottom:1.4rem"></div>
+    <div id="mfaSecretWrap" class="secret-code"></div>
+    <form id="mfaForm">
+      <div class="field">
+        <label for="mfaCode">Kod 6-Digit</label>
+        <input type="text" id="mfaCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" required autocomplete="one-time-code"/>
+      </div>
+      <button type="submit" class="btn" id="mfaBtn" style="width:100%">Sahkan</button>
+    </form>
+    <button type="button" class="btn-outline btn-small" id="mfaBackBtn" style="width:100%;margin-top:.8rem">Log Keluar</button>
+  </div>
+</div>
+
 <div id="dashboardView" style="display:none">
   <header>
     <img src="illham-logo.png?v=2" alt="illham"/>
-    <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+    <div style="display:flex;gap:.6rem">
+      <button class="logout-btn" id="resetMfaBtn">Tetapkan Semula 2FA</button>
+      <button class="logout-btn" id="logoutBtn">Log Keluar</button>
+    </div>
   </header>
   <main>
     <div class="toolbar">
@@ -191,11 +215,22 @@
   const PAYMENT_LABELS = { belum_bayar: 'Belum Bayar', deposit: 'Deposit', lunas: 'Lunas' };
 
   const loginView = document.getElementById('loginView');
+  const mfaView = document.getElementById('mfaView');
   const dashboardView = document.getElementById('dashboardView');
   const loginForm = document.getElementById('loginForm');
   const loginBtn = document.getElementById('loginBtn');
   const loginMsg = document.getElementById('loginMsg');
   const logoutBtn = document.getElementById('logoutBtn');
+  const resetMfaBtn = document.getElementById('resetMfaBtn');
+  const mfaForm = document.getElementById('mfaForm');
+  const mfaBtn = document.getElementById('mfaBtn');
+  const mfaMsg = document.getElementById('mfaMsg');
+  const mfaQrWrap = document.getElementById('mfaQrWrap');
+  const mfaSecretWrap = document.getElementById('mfaSecretWrap');
+  const mfaTitle = document.getElementById('mfaTitle');
+  const mfaSub = document.getElementById('mfaSub');
+  const mfaCode = document.getElementById('mfaCode');
+  const mfaBackBtn = document.getElementById('mfaBackBtn');
   const ordersList = document.getElementById('ordersList');
   const emptyState = document.getElementById('emptyState');
   const orderCount = document.getElementById('orderCount');
@@ -203,6 +238,7 @@
 
   let currentFilter = 'active';
   let allOrders = [];
+  let mfaFactorId = null;
 
   function escapeHtml(str) {
     const div = document.createElement('div');
@@ -217,15 +253,121 @@
     return `https://wa.me/${digits}`;
   }
 
+  function showView(view) {
+    loginView.style.display = view === 'login' ? 'flex' : 'none';
+    mfaView.style.display = view === 'mfa' ? 'flex' : 'none';
+    dashboardView.style.display = view === 'dashboard' ? 'block' : 'none';
+  }
+
   async function checkSession() {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      showDashboard();
+      await handlePostLogin();
     } else {
-      loginView.style.display = 'flex';
-      dashboardView.style.display = 'none';
+      showView('login');
     }
   }
+
+  async function handlePostLogin() {
+    const { data: aalData, error: aalErr } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aalErr) {
+      showView('login');
+      return;
+    }
+
+    if (aalData.currentLevel === 'aal2') {
+      showDashboard();
+      return;
+    }
+
+    const { data: factorsData } = await supabase.auth.mfa.listFactors();
+    const verifiedFactor = (factorsData?.totp || []).find(f => f.status === 'verified');
+
+    if (verifiedFactor) {
+      startChallenge(verifiedFactor.id);
+    } else {
+      await startEnroll();
+    }
+  }
+
+  async function startEnroll() {
+    mfaTitle.textContent = 'Sediakan 2FA';
+    mfaSub.textContent = 'Imbas kod QR ini dengan Google Authenticator, kemudian masukkan kod 6-digit untuk sahkan.';
+    mfaMsg.className = 'msg';
+    mfaCode.value = '';
+    mfaQrWrap.innerHTML = '';
+    mfaSecretWrap.textContent = '';
+
+    // Clear any stale unverified factor from a previous abandoned enrollment
+    // attempt before creating a fresh one.
+    const { data: existing } = await supabase.auth.mfa.listFactors();
+    const unverified = (existing?.totp || []).find(f => f.status === 'unverified');
+    if (unverified) {
+      await supabase.auth.mfa.unenroll({ factorId: unverified.id });
+    }
+
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    if (error) {
+      mfaMsg.textContent = 'Gagal sediakan 2FA: ' + error.message;
+      mfaMsg.classList.add('error');
+      showView('mfa');
+      return;
+    }
+    mfaFactorId = data.id;
+    mfaQrWrap.innerHTML = data.totp.qr_code;
+    mfaSecretWrap.textContent = 'Kod manual: ' + data.totp.secret;
+    showView('mfa');
+  }
+
+  function startChallenge(factorId) {
+    mfaFactorId = factorId;
+    mfaTitle.textContent = 'Pengesahan 2FA';
+    mfaSub.textContent = 'Masukkan kod 6-digit dari Google Authenticator.';
+    mfaMsg.className = 'msg';
+    mfaQrWrap.innerHTML = '';
+    mfaSecretWrap.textContent = '';
+    mfaCode.value = '';
+    showView('mfa');
+  }
+
+  mfaForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    mfaMsg.className = 'msg';
+    mfaBtn.disabled = true;
+    mfaBtn.textContent = 'Mengesahkan...';
+    const code = mfaCode.value.trim();
+
+    const { data: challenge, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
+    if (challengeErr) {
+      mfaMsg.textContent = 'Ralat: ' + challengeErr.message;
+      mfaMsg.classList.add('error');
+      mfaBtn.disabled = false;
+      mfaBtn.textContent = 'Sahkan';
+      return;
+    }
+
+    const { error: verifyErr } = await supabase.auth.mfa.verify({
+      factorId: mfaFactorId,
+      challengeId: challenge.id,
+      code
+    });
+
+    mfaBtn.disabled = false;
+    mfaBtn.textContent = 'Sahkan';
+
+    if (verifyErr) {
+      mfaMsg.textContent = 'Kod salah atau tamat tempoh. Cuba lagi.';
+      mfaMsg.classList.add('error');
+      return;
+    }
+
+    showDashboard();
+  });
+
+  mfaBackBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    showView('login');
+  });
 
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -244,19 +386,27 @@
       loginMsg.classList.add('error');
       return;
     }
-    showDashboard();
+    await handlePostLogin();
   });
 
   logoutBtn.addEventListener('click', async () => {
     await supabase.auth.signOut();
-    loginView.style.display = 'flex';
-    dashboardView.style.display = 'none';
+    showView('login');
     document.getElementById('loginPassword').value = '';
   });
 
+  resetMfaBtn.addEventListener('click', async () => {
+    if (!confirm('Padam 2FA semasa dan sediakan semula? Guna ini jika anda tukar telefon.')) return;
+    const { data: factorsData } = await supabase.auth.mfa.listFactors();
+    const factors = factorsData?.totp || [];
+    for (const f of factors) {
+      await supabase.auth.mfa.unenroll({ factorId: f.id });
+    }
+    await startEnroll();
+  });
+
   function showDashboard() {
-    loginView.style.display = 'none';
-    dashboardView.style.display = 'block';
+    showView('dashboard');
     loadOrders();
   }
 
