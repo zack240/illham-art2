@@ -182,8 +182,9 @@
 
       <div class="step" data-step="4">
         <div class="field">
-          <label for="address">Alamat Penghantaran</label>
+          <label for="address">Alamat Penghantaran (pilihan)</label>
           <textarea id="address" name="address" placeholder="Alamat penuh termasuk poskod dan negeri"></textarea>
+          <p class="hint">Jika belum tahu, boleh kosongkan — kami akan tanya semasa pengesahan.</p>
         </div>
       </div>
 
@@ -314,8 +315,7 @@
       const v = document.getElementById('phone').value.trim();
       if (!v || v.replace(/\D/g, '').length < 9) { showError('Sila isi no. telefon yang sah.'); return false; }
     } else if (n === 4) {
-      const v = document.getElementById('address').value.trim();
-      if (!v) { showError('Sila isi alamat penghantaran.'); return false; }
+      // Alamat penghantaran pilihan — tiada validation wajib.
     } else if (n === 5) {
       const file = fileInput.files[0];
       const photoRequired = sizeInput.value.trim() !== 'Lukis Sahaja';
@@ -382,7 +382,7 @@
         p_customer_name: customerName,
         p_email: email,
         p_phone: phone,
-        p_delivery_address: address,
+        p_delivery_address: address || null,
         p_reference_photo_path: path,
         p_bookmark_size: size || null,
       });
