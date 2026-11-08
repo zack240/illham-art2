@@ -192,7 +192,8 @@
     /* PROCESS */
     .process { padding:6rem 5rem;background:var(--cream); }
     .proc-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:2.5rem;margin-top:3.5rem; }
-    .step { border-top:1px solid var(--blush);padding-top:1.8rem; }
+    .step-img { position:relative;overflow:hidden;border-radius:14px;aspect-ratio:4/3;margin-bottom:1.6rem;background-size:cover,cover;background-position:center,center; }
+    .step-body { border-top:1px solid var(--blush);padding-top:1.8rem; }
     .step-n { font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:400;color:var(--blush);line-height:1;margin-bottom:1rem; }
     .step-t { font-size:.7rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.6rem; }
     .step-d { font-size:.8rem;font-weight:300;color:var(--mid);line-height:1.8; }
@@ -447,10 +448,22 @@
     <h2 class="sec-title">Dari <em>ilham</em> ke <em>Tanganmu</em></h2>
   </div>
   <div class="proc-grid">
-    <div class="step reveal"><div class="step-n">01</div><p class="step-t">Lakaran</p><p class="step-d">Bermula dengan pensel. Bebas, intuitif, jujur kepada subjek.</p></div>
-    <div class="step reveal"><div class="step-n">02</div><p class="step-t">Pembayaran</p><p class="step-d">Bayaran deposit atau penuh mengikut budi bicara sesama — tiada pembayaran, tiada penghantaran.</p></div>
-    <div class="step reveal"><div class="step-n">03</div><p class="step-t">Kemasan</p><p class="step-d">Setiap karya berlamina untuk ketahanan — dibina untuk bertahan ratusan muka surat.</p></div>
-    <div class="step reveal"><div class="step-n">04</div><p class="step-t">Penghantaran</p><p class="step-d">Dibungkus dengan cermat, dibalut rapi, dan dihantar bersama sedikit cenderahati.</p></div>
+    <div class="step reveal">
+      <div class="step-img" style="background-image:url('images/proses-01-lakaran.jpg'),linear-gradient(145deg,#EAD8C8,#C8A888)"></div>
+      <div class="step-body"><div class="step-n">01</div><p class="step-t">Lakaran</p><p class="step-d">Bermula dengan pensel. Bebas, intuitif, jujur kepada subjek.</p></div>
+    </div>
+    <div class="step reveal">
+      <div class="step-img" style="background-image:url('images/proses-02-pembayaran.jpg'),linear-gradient(145deg,#C8D0BC,#A0AC90)"></div>
+      <div class="step-body"><div class="step-n">02</div><p class="step-t">Pembayaran</p><p class="step-d">Bayaran deposit atau penuh mengikut budi bicara sesama — tiada pembayaran, tiada penghantaran.</p></div>
+    </div>
+    <div class="step reveal">
+      <div class="step-img" style="background-image:url('images/proses-03-kemasan.jpg'),linear-gradient(145deg,#C0CCD8,#8898A8)"></div>
+      <div class="step-body"><div class="step-n">03</div><p class="step-t">Kemasan</p><p class="step-d">Setiap karya berlamina untuk ketahanan — dibina untuk bertahan ratusan muka surat.</p></div>
+    </div>
+    <div class="step reveal">
+      <div class="step-img" style="background-image:url('images/proses-04-penghantaran.jpg'),linear-gradient(145deg,#E4D0D8,#B894A0)"></div>
+      <div class="step-body"><div class="step-n">04</div><p class="step-t">Penghantaran</p><p class="step-d">Dibungkus dengan cermat, dibalut rapi, dan dihantar bersama sedikit cenderahati.</p></div>
+    </div>
   </div>
 </section>
 
