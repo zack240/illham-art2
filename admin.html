@@ -949,13 +949,13 @@
   function blankDraft() {
     return {
       id: null, title: '', status: 'draf', scheduled_date: null,
-      caption: '', hashtags: '', slides: [{ text: '', bg: 'cream' }],
+      caption: '', hashtags: '', slides: [{ text: '', bg: 'white' }],
     };
   }
 
   function openDraftEditor(draft) {
     currentDraft = JSON.parse(JSON.stringify(draft));
-    if (!currentDraft.slides || !currentDraft.slides.length) currentDraft.slides = [{ text: '', bg: 'cream' }];
+    if (!currentDraft.slides || !currentDraft.slides.length) currentDraft.slides = [{ text: '', bg: 'white' }];
     activeSlideIndex = 0;
     draftTitle.value = currentDraft.title || '';
     draftStatus.value = currentDraft.status || 'draf';
@@ -985,7 +985,7 @@
   function loadActiveSlideIntoForm() {
     const slide = currentDraft.slides[activeSlideIndex];
     activeSlideText.value = slide.text || '';
-    slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.bg === (slide.bg || 'cream')));
+    slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.bg === (slide.bg || 'white')));
     drawSlideCanvas(slide);
   }
 
@@ -1009,7 +1009,7 @@
 
   addSlideBtn.addEventListener('click', () => {
     saveActiveSlideFromForm();
-    currentDraft.slides.push({ text: '', bg: 'cream' });
+    currentDraft.slides.push({ text: '', bg: 'white' });
     activeSlideIndex = currentDraft.slides.length - 1;
     renderSlideTabs();
     loadActiveSlideIntoForm();
@@ -1058,7 +1058,36 @@
     return lines.slice(0, 7);
   }
 
-  function drawInvertedLogo(ctx, x, y, w, h) {
+  // Progressive (step-halving) downscale — a single drawImage() call from a
+  // 2780x859 source down to ~160px wide loses far more detail than the
+  // browser's imageSmoothingQuality can recover in one pass (visible as
+  // jagged/broken edges once zoomed into the exported PNG). Repeatedly
+  // halving keeps each individual reduction small enough for the smoothing
+  // to stay sharp, same trick browsers use internally for mipmapping.
+  function drawImageHQ(ctx, img, dx, dy, dw, dh) {
+    let src = img;
+    let srcW = img.naturalWidth || img.width;
+    let srcH = img.naturalHeight || img.height;
+    while (srcW * 0.5 > dw && srcH * 0.5 > dh) {
+      const stepW = Math.max(1, Math.floor(srcW * 0.5));
+      const stepH = Math.max(1, Math.floor(srcH * 0.5));
+      const step = document.createElement('canvas');
+      step.width = stepW;
+      step.height = stepH;
+      const sctx = step.getContext('2d');
+      sctx.imageSmoothingEnabled = true;
+      sctx.imageSmoothingQuality = 'high';
+      sctx.drawImage(src, 0, 0, stepW, stepH);
+      src = step;
+      srcW = stepW;
+      srcH = stepH;
+    }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(src, dx, dy, dw, dh);
+  }
+
+  function invertedLogoCanvas() {
     const off = document.createElement('canvas');
     off.width = logoImg.naturalWidth;
     off.height = logoImg.naturalHeight;
@@ -1070,7 +1099,7 @@
       d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
     }
     octx.putImageData(imgData, 0, 0);
-    ctx.drawImage(off, x, y, w, h);
+    return off;
   }
 
   async function drawSlideCanvas(slide) {
@@ -1078,7 +1107,7 @@
     await logoReady;
     const ctx = slideCanvas.getContext('2d');
     const W = slideCanvas.width, H = slideCanvas.height;
-    const preset = BG_PRESETS[slide.bg || 'cream'];
+    const preset = BG_PRESETS[slide.bg || 'white'];
 
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = preset.bg;
@@ -1103,11 +1132,8 @@
       const logoW = 160;
       const logoH = logoW * (logoImg.naturalHeight / logoImg.naturalWidth);
       ctx.globalAlpha = 0.88;
-      if (slide.bg === 'ink') {
-        drawInvertedLogo(ctx, (W - logoW) / 2, H - logoH - 70, logoW, logoH);
-      } else {
-        ctx.drawImage(logoImg, (W - logoW) / 2, H - logoH - 70, logoW, logoH);
-      }
+      const logoSrc = slide.bg === 'ink' ? invertedLogoCanvas() : logoImg;
+      drawImageHQ(ctx, logoSrc, (W - logoW) / 2, H - logoH - 70, logoW, logoH);
       ctx.globalAlpha = 1;
     }
   }
