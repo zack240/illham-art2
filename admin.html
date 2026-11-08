@@ -436,6 +436,10 @@
               <textarea id="activeSlideText" rows="4"></textarea>
             </div>
             <div class="field">
+              <label for="slideFontSize">Saiz Fon (<span id="slideFontSizeValue">58</span>px)</label>
+              <input type="range" id="slideFontSize" min="28" max="96" step="2" value="58" style="width:100%"/>
+            </div>
+            <div class="field">
               <label>Latar Belakang</label>
               <div class="chip-group" id="slideBgPicker">
                 <button type="button" class="chip" data-bg="cream">Cream</button>
@@ -530,6 +534,8 @@
   const slideTabs = document.getElementById('slideTabs');
   const slideCanvas = document.getElementById('slideCanvas');
   const activeSlideText = document.getElementById('activeSlideText');
+  const slideFontSize = document.getElementById('slideFontSize');
+  const slideFontSizeValue = document.getElementById('slideFontSizeValue');
   const slideBgPicker = document.getElementById('slideBgPicker');
   const addSlideBtn = document.getElementById('addSlideBtn');
   const removeSlideBtn = document.getElementById('removeSlideBtn');
@@ -987,6 +993,9 @@
   function loadActiveSlideIntoForm() {
     const slide = currentDraft.slides[activeSlideIndex];
     activeSlideText.value = slide.text || '';
+    const fontSize = slide.fontSize || 58;
+    slideFontSize.value = fontSize;
+    slideFontSizeValue.textContent = fontSize;
     slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.bg === (slide.bg || 'white')));
     drawSlideCanvas(slide);
   }
@@ -998,6 +1007,14 @@
 
   activeSlideText.addEventListener('input', () => {
     saveActiveSlideFromForm();
+    drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
+  });
+
+  slideFontSize.addEventListener('input', () => {
+    if (!currentDraft) return;
+    const size = Number(slideFontSize.value);
+    currentDraft.slides[activeSlideIndex].fontSize = size;
+    slideFontSizeValue.textContent = size;
     drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
   });
 
@@ -1116,13 +1133,14 @@
     ctx.fillRect(0, 0, W, H);
 
     const text = (slide.text || '').trim() || 'Teks slide anda di sini';
+    const fontSize = slide.fontSize || 58;
     ctx.fillStyle = preset.text;
-    ctx.font = 'italic 700 58px "Playfair Display", serif';
+    ctx.font = `italic 700 ${fontSize}px "Playfair Display", serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const maxWidth = W - 140;
     const lines = wrapCanvasText(ctx, text, maxWidth);
-    const lineHeight = 72;
+    const lineHeight = Math.round(fontSize * 1.24);
     const totalHeight = lines.length * lineHeight;
     let y = H / 2 - totalHeight / 2 + lineHeight / 2;
     lines.forEach(line => {
@@ -1142,6 +1160,10 @@
 
   function safeDraftName() {
     return (currentDraft.title || 'draf-tiktok').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'draf-tiktok';
+  }
+
+  function canvasToPngBlob() {
+    return new Promise(resolve => slideCanvas.toBlob(resolve, 'image/png'));
   }
 
   function downloadCanvasAsPng(slideNum) {
@@ -1164,19 +1186,54 @@
     await downloadCanvasAsPng(activeSlideIndex + 1);
   });
 
-  downloadAllBtn.addEventListener('click', async () => {
-    saveActiveSlideFromForm();
-    const originalIndex = activeSlideIndex;
-    downloadAllBtn.disabled = true;
+  // Chrome/Edge: ask once which folder (e.g. Desktop) to save every slide
+  // into, then write files straight there with no further prompts. Plain
+  // <a download> can't target a folder — it always lands wherever the
+  // browser's own download setting points, and triggering several in a row
+  // gets throttled by the browser's multi-download guard. Falls back to the
+  // old sequential-click approach on browsers without this API (Firefox/Safari).
+  async function saveAllViaFolderPicker(originalIndex) {
+    let dirHandle;
+    try {
+      dirHandle = await window.showDirectoryPicker({ id: 'tiktok-drafts', mode: 'readwrite' });
+    } catch (err) {
+      if (err.name === 'AbortError') return true; // user cancelled — respect it, don't spam-download instead
+      return false; // some other failure — fall back to plain downloads
+    }
+    for (let i = 0; i < currentDraft.slides.length; i++) {
+      downloadAllBtn.textContent = `Menyimpan ${i + 1}/${currentDraft.slides.length}...`;
+      await drawSlideCanvas(currentDraft.slides[i]);
+      const blob = await canvasToPngBlob();
+      if (!blob) continue;
+      const fileHandle = await dirHandle.getFileHandle(`${safeDraftName()}-slide-${i + 1}.png`, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    }
+    await drawSlideCanvas(currentDraft.slides[originalIndex]);
+    return true;
+  }
+
+  async function saveAllViaSequentialDownloads(originalIndex) {
     for (let i = 0; i < currentDraft.slides.length; i++) {
       downloadAllBtn.textContent = `Memuat turun ${i + 1}/${currentDraft.slides.length}...`;
       await drawSlideCanvas(currentDraft.slides[i]);
       await downloadCanvasAsPng(i + 1);
       await new Promise(r => setTimeout(r, 350));
     }
+    await drawSlideCanvas(currentDraft.slides[originalIndex]);
+  }
+
+  downloadAllBtn.addEventListener('click', async () => {
+    saveActiveSlideFromForm();
+    const originalIndex = activeSlideIndex;
+    downloadAllBtn.disabled = true;
+    const handled = ('showDirectoryPicker' in window)
+      ? await saveAllViaFolderPicker(originalIndex)
+      : false;
+    if (!handled) await saveAllViaSequentialDownloads(originalIndex);
     downloadAllBtn.disabled = false;
     downloadAllBtn.textContent = 'Muat Turun Semua';
-    await drawSlideCanvas(currentDraft.slides[originalIndex]);
   });
 
   newDraftBtn.addEventListener('click', () => openDraftEditor(blankDraft()));
