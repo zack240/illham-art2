@@ -182,14 +182,6 @@
 
       <div class="step" data-step="4">
         <div class="field">
-          <label for="address">Alamat Penghantaran (pilihan)</label>
-          <textarea id="address" name="address" placeholder="Alamat penuh termasuk poskod dan negeri"></textarea>
-          <p class="hint">Jika belum tahu, boleh kosongkan — kami akan tanya semasa pengesahan.</p>
-        </div>
-      </div>
-
-      <div class="step" data-step="5">
-        <div class="field">
           <label for="photo">Gambar Rujukan untuk Dilukis</label>
           <label class="file-drop" id="fileDrop" for="photo">
             <input type="file" id="photo" name="photo" accept="image/*"/>
@@ -206,6 +198,14 @@
             <button type="button" class="chip" data-value="Lukis Sahaja">Lukis Sahaja</button>
           </div>
           <input type="text" id="size" name="size" placeholder="Atau taip sendiri — cth: saiz, kuantiti, butiran lain"/>
+        </div>
+      </div>
+
+      <div class="step" data-step="5">
+        <div class="field">
+          <label for="address">Alamat Penghantaran (pilihan)</label>
+          <textarea id="address" name="address" placeholder="Alamat penuh termasuk poskod dan negeri"></textarea>
+          <p class="hint">Jika belum tahu, boleh kosongkan — kami akan tanya semasa pengesahan.</p>
         </div>
       </div>
 
@@ -315,8 +315,6 @@
       const v = document.getElementById('phone').value.trim();
       if (!v || v.replace(/\D/g, '').length < 9) { showError('Sila isi no. telefon yang sah.'); return false; }
     } else if (n === 4) {
-      // Alamat penghantaran pilihan — tiada validation wajib.
-    } else if (n === 5) {
       const file = fileInput.files[0];
       const photoRequired = sizeInput.value.trim() !== 'Lukis Sahaja';
       if (photoRequired) {
@@ -326,6 +324,8 @@
         if (!file.type.startsWith('image/')) { showError('Fail mesti gambar (JPG/PNG/WebP dll).'); return false; }
         if (file.size > MAX_FILE_BYTES) { showError('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.'); return false; }
       }
+    } else if (n === 5) {
+      // Alamat penghantaran pilihan — tiada validation wajib.
     }
     return true;
   }
