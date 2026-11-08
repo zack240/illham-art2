@@ -443,10 +443,15 @@
               <canvas id="slideCanvas" width="720" height="1280"></canvas>
             </div>
             <div class="field">
-              <label for="activeSlideText">Teks Slide (klik cadangan kata di kiri untuk insert, atau taip custom)</label>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+                <label for="activeSlideText" style="margin:0">Teks Slide (klik cadangan kata di kiri untuk insert, atau taip custom)</label>
+                <label style="display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--charcoal);white-space:nowrap;margin-left:1rem;cursor:pointer">
+                  <input type="checkbox" id="slideShowText" checked style="width:auto"/> Tunjuk Teks
+                </label>
+              </div>
               <textarea id="activeSlideText" rows="4"></textarea>
             </div>
-            <div class="field">
+            <div class="field" id="slideFontSizeField">
               <label for="slideFontSize">Saiz Fon (<span id="slideFontSizeValue">58</span>px)</label>
               <input type="range" id="slideFontSize" min="28" max="96" step="2" value="58" style="width:100%"/>
             </div>
@@ -561,6 +566,8 @@
   const slideTabs = document.getElementById('slideTabs');
   const slideCanvas = document.getElementById('slideCanvas');
   const activeSlideText = document.getElementById('activeSlideText');
+  const slideShowText = document.getElementById('slideShowText');
+  const slideFontSizeField = document.getElementById('slideFontSizeField');
   const slideFontSize = document.getElementById('slideFontSize');
   const slideFontSizeValue = document.getElementById('slideFontSizeValue');
   const slideImageInput = document.getElementById('slideImageInput');
@@ -1031,6 +1038,9 @@
     const fontSize = slide.fontSize || 58;
     slideFontSize.value = fontSize;
     slideFontSizeValue.textContent = fontSize;
+    const showText = slide.showText !== false;
+    slideShowText.checked = showText;
+    slideFontSizeField.style.display = showText ? 'block' : 'none';
     slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.bg === (slide.bg || 'white')));
     refreshSlideImageUI(slide);
     drawSlideCanvas(slide);
@@ -1057,6 +1067,14 @@
   activeSlideText.addEventListener('input', () => {
     saveActiveSlideFromForm();
     drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
+  });
+
+  slideShowText.addEventListener('change', () => {
+    if (!currentDraft) return;
+    const slide = currentDraft.slides[activeSlideIndex];
+    slide.showText = slideShowText.checked;
+    slideFontSizeField.style.display = slideShowText.checked ? 'block' : 'none';
+    drawSlideCanvas(slide);
   });
 
   slideFontSize.addEventListener('input', () => {
@@ -1318,7 +1336,7 @@
       textColor = preset.text;
     }
 
-    if (textColor) {
+    if (textColor && slide.showText !== false) {
       const text = (slide.text || '').trim() || 'Teks slide anda di sini';
       const fontSize = slide.fontSize || 58;
       ctx.fillStyle = textColor;
