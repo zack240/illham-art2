@@ -260,6 +260,7 @@
     .slide-tab.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
     .slide-canvas-wrap { max-width: 260px; margin: 0 auto 1.2rem; }
     .slide-canvas-wrap canvas { width:100%; height:auto; display:block; border:1px solid var(--light); border-radius:4px; background: var(--light); }
+    .slide-workspace .hint { font-size:.74rem; color: var(--mid); font-weight:300; margin-top:.6rem; }
 
     @media (max-width: 760px) {
       .tiktok-editor-grid { grid-template-columns: 1fr; }
@@ -455,6 +456,7 @@
               <button type="button" class="btn btn-small" id="downloadSlideBtn">Muat Turun PNG</button>
               <button type="button" class="btn-outline btn-small" id="downloadAllBtn">Muat Turun Semua</button>
             </div>
+            <p class="hint">Pilih folder "Downloads", atau sub-folder di dalam Desktop (cth: Desktop &gt; Draf TikTok) — Chrome sekat folder Desktop/Documents utama secara terus atas sebab keselamatan.</p>
           </div>
         </div>
 
@@ -1195,7 +1197,13 @@
   async function saveAllViaFolderPicker(originalIndex) {
     let dirHandle;
     try {
-      dirHandle = await window.showDirectoryPicker({ id: 'tiktok-drafts', mode: 'readwrite' });
+      // Chrome blocks granting write access to a few protected folders
+      // (Desktop, Documents, the user's home dir) outright — picking one
+      // shows Chrome's own "Can't open this folder" dialog, no matter what
+      // this page does. Defaulting startIn to 'downloads' steers people away
+      // from hitting that wall; a sub-folder *inside* Desktop/Documents is
+      // still fine, only the bare top-level folder itself is blocked.
+      dirHandle = await window.showDirectoryPicker({ id: 'tiktok-drafts', mode: 'readwrite', startIn: 'downloads' });
     } catch (err) {
       if (err.name === 'AbortError') return true; // user cancelled — respect it, don't spam-download instead
       return false; // some other failure — fall back to plain downloads
