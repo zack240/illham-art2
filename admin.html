@@ -261,6 +261,16 @@
     .slide-canvas-wrap { max-width: 260px; margin: 0 auto 1.2rem; }
     .slide-canvas-wrap canvas { width:100%; height:auto; display:block; border:1px solid var(--light); border-radius:4px; background: var(--light); }
     .slide-workspace .hint { font-size:.74rem; color: var(--mid); font-weight:300; margin-top:.6rem; }
+    .file-drop {
+      display:block; border:1px dashed var(--mid); padding:1.1rem 1rem; text-align:center;
+      cursor:pointer; transition: border-color .2s, background .2s;
+    }
+    .file-drop.has-file { border-style:solid; border-color: var(--charcoal); }
+    .file-drop.drag-over { border-color: var(--mauve); background: var(--light); }
+    .file-drop input { display:none; }
+    .file-drop p { font-size:.78rem; color: var(--mid); margin:0; }
+    .slide-canvas-wrap canvas.has-image { cursor: grab; }
+    .slide-canvas-wrap canvas.has-image.dragging { cursor: grabbing; }
 
     @media (max-width: 760px) {
       .tiktok-editor-grid { grid-template-columns: 1fr; }
@@ -441,6 +451,21 @@
               <input type="range" id="slideFontSize" min="28" max="96" step="2" value="58" style="width:100%"/>
             </div>
             <div class="field">
+              <label>Gambar Latar (pilihan)</label>
+              <label class="file-drop" id="slideImageDrop" for="slideImageInput">
+                <input type="file" id="slideImageInput" accept="image/*"/>
+                <p id="slideImageHint">Jatuhkan gambar di sini atau klik untuk pilih (JPG/PNG, maks 8MB)</p>
+              </label>
+              <div class="row-actions" id="slideImageControls" style="display:none;margin-top:.8rem;align-items:center">
+                <div class="field" style="flex:1;margin:0">
+                  <label for="slideImageZoom">Zoom</label>
+                  <input type="range" id="slideImageZoom" min="1" max="3" step="0.05" value="1" style="width:100%"/>
+                </div>
+                <button type="button" class="btn-outline btn-small" id="removeSlideImageBtn">Buang Gambar</button>
+              </div>
+              <p class="hint" id="slidePanHint" style="display:none">Drag terus atas preview slide untuk gerakkan posisi gambar (pan).</p>
+            </div>
+            <div class="field" id="slideBgField">
               <label>Latar Belakang</label>
               <div class="chip-group" id="slideBgPicker">
                 <button type="button" class="chip" data-bg="cream">Cream</button>
@@ -538,6 +563,14 @@
   const activeSlideText = document.getElementById('activeSlideText');
   const slideFontSize = document.getElementById('slideFontSize');
   const slideFontSizeValue = document.getElementById('slideFontSizeValue');
+  const slideImageInput = document.getElementById('slideImageInput');
+  const slideImageDrop = document.getElementById('slideImageDrop');
+  const slideImageHint = document.getElementById('slideImageHint');
+  const slideImageControls = document.getElementById('slideImageControls');
+  const slideImageZoom = document.getElementById('slideImageZoom');
+  const removeSlideImageBtn = document.getElementById('removeSlideImageBtn');
+  const slidePanHint = document.getElementById('slidePanHint');
+  const slideBgField = document.getElementById('slideBgField');
   const slideBgPicker = document.getElementById('slideBgPicker');
   const addSlideBtn = document.getElementById('addSlideBtn');
   const removeSlideBtn = document.getElementById('removeSlideBtn');
@@ -999,7 +1032,21 @@
     slideFontSize.value = fontSize;
     slideFontSizeValue.textContent = fontSize;
     slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.bg === (slide.bg || 'white')));
+    refreshSlideImageUI(slide);
     drawSlideCanvas(slide);
+  }
+
+  function refreshSlideImageUI(slide) {
+    const hasImage = !!slide.image;
+    slideImageDrop.classList.toggle('has-file', hasImage);
+    slideImageHint.textContent = hasImage
+      ? 'Gambar dimuat naik — klik untuk tukar'
+      : 'Jatuhkan gambar di sini atau klik untuk pilih (JPG/PNG, maks 8MB)';
+    slideImageControls.style.display = hasImage ? 'flex' : 'none';
+    slidePanHint.style.display = hasImage ? 'block' : 'none';
+    slideBgField.style.display = hasImage ? 'none' : 'block';
+    slideCanvas.classList.toggle('has-image', hasImage);
+    if (hasImage) slideImageZoom.value = slide.imageScale || 1;
   }
 
   function saveActiveSlideFromForm() {
@@ -1028,6 +1075,88 @@
     drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
   });
 
+  async function uploadSlideImage(file) {
+    if (!currentDraft) return;
+    if (!file.type.startsWith('image/')) { alert('Fail mesti gambar (JPG/PNG/WebP dll).'); return; }
+    if (file.size > 8 * 1024 * 1024) { alert('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.'); return; }
+    const slide = currentDraft.slides[activeSlideIndex];
+    const oldPath = slide.image;
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = `${crypto.randomUUID()}.${ext}`;
+    slideImageHint.textContent = 'Memuat naik...';
+    const { error } = await supabase.storage.from('tiktok-slide-images').upload(path, file, { contentType: file.type });
+    if (error) {
+      alert('Gagal muat naik gambar: ' + error.message);
+      refreshSlideImageUI(slide);
+      return;
+    }
+    if (oldPath) supabase.storage.from('tiktok-slide-images').remove([oldPath]).catch(() => {});
+    slide.image = path;
+    slide.imageScale = 1;
+    slide.imageOffsetX = 0;
+    slide.imageOffsetY = 0;
+    refreshSlideImageUI(slide);
+    drawSlideCanvas(slide);
+  }
+
+  slideImageInput.addEventListener('change', () => {
+    const file = slideImageInput.files[0];
+    if (file) uploadSlideImage(file);
+  });
+
+  slideImageDrop.addEventListener('dragover', (e) => { e.preventDefault(); slideImageDrop.classList.add('drag-over'); });
+  slideImageDrop.addEventListener('dragleave', () => slideImageDrop.classList.remove('drag-over'));
+  slideImageDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    slideImageDrop.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) uploadSlideImage(file);
+  });
+
+  removeSlideImageBtn.addEventListener('click', async () => {
+    if (!currentDraft) return;
+    const slide = currentDraft.slides[activeSlideIndex];
+    if (slide.image) {
+      supabase.storage.from('tiktok-slide-images').remove([slide.image]).catch(() => {});
+    }
+    slide.image = null;
+    slide.imageScale = 1;
+    slide.imageOffsetX = 0;
+    slide.imageOffsetY = 0;
+    refreshSlideImageUI(slide);
+    drawSlideCanvas(slide);
+  });
+
+  slideImageZoom.addEventListener('input', () => {
+    if (!currentDraft) return;
+    const slide = currentDraft.slides[activeSlideIndex];
+    slide.imageScale = Number(slideImageZoom.value);
+    drawSlideCanvas(slide);
+  });
+
+  let panDrag = null;
+  slideCanvas.addEventListener('pointerdown', (e) => {
+    if (!currentDraft) return;
+    const slide = currentDraft.slides[activeSlideIndex];
+    if (!slide.image) return;
+    slideCanvas.setPointerCapture(e.pointerId);
+    panDrag = { startX: e.clientX, startY: e.clientY, offX: slide.imageOffsetX || 0, offY: slide.imageOffsetY || 0 };
+    slideCanvas.classList.add('dragging');
+  });
+  slideCanvas.addEventListener('pointermove', (e) => {
+    if (!panDrag || !currentDraft) return;
+    const slide = currentDraft.slides[activeSlideIndex];
+    const rect = slideCanvas.getBoundingClientRect();
+    const dxFrac = (e.clientX - panDrag.startX) / rect.width;
+    const dyFrac = (e.clientY - panDrag.startY) / rect.height;
+    slide.imageOffsetX = panDrag.offX + dxFrac;
+    slide.imageOffsetY = panDrag.offY + dyFrac;
+    drawSlideCanvas(slide);
+  });
+  function endPanDrag() { panDrag = null; slideCanvas.classList.remove('dragging'); }
+  slideCanvas.addEventListener('pointerup', endPanDrag);
+  slideCanvas.addEventListener('pointercancel', endPanDrag);
+
   addSlideBtn.addEventListener('click', () => {
     saveActiveSlideFromForm();
     currentDraft.slides.push({ text: '', bg: 'white' });
@@ -1038,7 +1167,8 @@
 
   removeSlideBtn.addEventListener('click', () => {
     if (currentDraft.slides.length <= 1) { alert('Draf mesti ada sekurang-kurangnya 1 slide.'); return; }
-    currentDraft.slides.splice(activeSlideIndex, 1);
+    const [removed] = currentDraft.slides.splice(activeSlideIndex, 1);
+    if (removed.image) supabase.storage.from('tiktok-slide-images').remove([removed.image]).catch(() => {});
     activeSlideIndex = Math.max(0, activeSlideIndex - 1);
     renderSlideTabs();
     loadActiveSlideIntoForm();
@@ -1123,38 +1253,97 @@
     return off;
   }
 
+  const slideImageCache = new Map(); // storage path -> HTMLImageElement
+  async function getSlideImage(path) {
+    if (!path) return null;
+    if (slideImageCache.has(path)) return slideImageCache.get(path);
+    const { data, error } = await supabase.storage.from('tiktok-slide-images').download(path);
+    if (error || !data) return null;
+    const url = URL.createObjectURL(data);
+    const img = new Image();
+    await new Promise(resolve => { img.onload = resolve; img.onerror = resolve; img.src = url; });
+    if (img.naturalWidth) slideImageCache.set(path, img);
+    return img.naturalWidth ? img : null;
+  }
+
+  let drawGen = 0;
   async function drawSlideCanvas(slide) {
+    const myGen = ++drawGen;
     await ensureFontsLoaded();
     await logoReady;
+    const img = slide.image ? await getSlideImage(slide.image) : null;
+    if (myGen !== drawGen) return; // a newer draw call superseded this one
+
     const ctx = slideCanvas.getContext('2d');
     const W = slideCanvas.width, H = slideCanvas.height;
-    const preset = BG_PRESETS[slide.bg || 'white'];
-
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = preset.bg;
-    ctx.fillRect(0, 0, W, H);
 
-    const text = (slide.text || '').trim() || 'Teks slide anda di sini';
-    const fontSize = slide.fontSize || 58;
-    ctx.fillStyle = preset.text;
-    ctx.font = `italic 700 ${fontSize}px "Playfair Display", serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const maxWidth = W - 140;
-    const lines = wrapCanvasText(ctx, text, maxWidth);
-    const lineHeight = Math.round(fontSize * 1.24);
-    const totalHeight = lines.length * lineHeight;
-    let y = H / 2 - totalHeight / 2 + lineHeight / 2;
-    lines.forEach(line => {
-      ctx.fillText(line, W / 2, y);
-      y += lineHeight;
-    });
+    let textColor;
+    if (img) {
+      const iw = img.naturalWidth, ih = img.naturalHeight;
+      const baseScale = Math.max(W / iw, H / ih);
+      const scale = baseScale * (slide.imageScale || 1);
+      const dw = iw * scale, dh = ih * scale;
+      const overflowX = Math.max(0, (dw - W) / 2);
+      const overflowY = Math.max(0, (dh - H) / 2);
+      const maxOffX = overflowX / W;
+      const maxOffY = overflowY / H;
+      slide.imageOffsetX = Math.max(-maxOffX, Math.min(maxOffX, slide.imageOffsetX || 0));
+      slide.imageOffsetY = Math.max(-maxOffY, Math.min(maxOffY, slide.imageOffsetY || 0));
+      const dx = (W - dw) / 2 + slide.imageOffsetX * W;
+      const dy = (H - dh) / 2 + slide.imageOffsetY * H;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, dx, dy, dw, dh);
+
+      const grad = ctx.createLinearGradient(0, H * 0.55, 0, H);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.5)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+      textColor = '#FFFFFF';
+    } else if (slide.image) {
+      // image path set but failed/still loading
+      ctx.fillStyle = '#E8E2D8';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#9A8E84';
+      ctx.font = '400 28px "DM Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Memuatkan gambar...', W / 2, H / 2);
+      textColor = null;
+    } else {
+      const preset = BG_PRESETS[slide.bg || 'white'];
+      ctx.fillStyle = preset.bg;
+      ctx.fillRect(0, 0, W, H);
+      textColor = preset.text;
+    }
+
+    if (textColor) {
+      const text = (slide.text || '').trim() || 'Teks slide anda di sini';
+      const fontSize = slide.fontSize || 58;
+      ctx.fillStyle = textColor;
+      ctx.font = `italic 700 ${fontSize}px "Playfair Display", serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (img) { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; }
+      const maxWidth = W - 140;
+      const lines = wrapCanvasText(ctx, text, maxWidth);
+      const lineHeight = Math.round(fontSize * 1.24);
+      const totalHeight = lines.length * lineHeight;
+      let y = H / 2 - totalHeight / 2 + lineHeight / 2;
+      lines.forEach(line => {
+        ctx.fillText(line, W / 2, y);
+        y += lineHeight;
+      });
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+    }
 
     if (logoImg.naturalWidth) {
       const logoW = 160;
       const logoH = logoW * (logoImg.naturalHeight / logoImg.naturalWidth);
       ctx.globalAlpha = 0.88;
-      const logoSrc = slide.bg === 'ink' ? invertedLogoCanvas() : logoImg;
+      const logoSrc = (img || slide.bg === 'ink') ? invertedLogoCanvas() : logoImg;
       drawImageHQ(ctx, logoSrc, (W - logoW) / 2, H - logoH - 70, logoW, logoH);
       ctx.globalAlpha = 1;
     }
@@ -1304,6 +1493,8 @@
       alert('Gagal padam: ' + error.message);
       return;
     }
+    const imagePaths = currentDraft.slides.map(s => s.image).filter(Boolean);
+    if (imagePaths.length) supabase.storage.from('tiktok-slide-images').remove(imagePaths).catch(() => {});
     tiktokEditor.style.display = 'none';
     currentDraft = null;
     await loadTiktokDrafts();
