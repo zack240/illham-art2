@@ -435,7 +435,8 @@
         </div>
         <div class="row-actions" style="margin-bottom:1.5rem">
           <button type="button" class="btn-outline btn-small" id="copyCaptionBtn">Salin Caption + Hashtag</button>
-          <button type="button" class="btn btn-small" id="saveDraftBtnTop" style="margin-left:auto">Simpan Draf</button>
+          <button type="button" class="btn-outline btn-small" id="removeSlideBtnTop" style="margin-left:auto">Padam Slide Ini</button>
+          <button type="button" class="btn btn-small" id="saveDraftBtnTop">Simpan Draf</button>
         </div>
 
         <div class="tiktok-editor-grid">
@@ -565,6 +566,7 @@
   const draftHashtags = document.getElementById('draftHashtags');
   const copyCaptionBtn = document.getElementById('copyCaptionBtn');
   const saveDraftBtnTop = document.getElementById('saveDraftBtnTop');
+  const removeSlideBtnTop = document.getElementById('removeSlideBtnTop');
   const wordBankPanel = document.getElementById('wordBankPanel');
   const slideTabs = document.getElementById('slideTabs');
   const slideCanvas = document.getElementById('slideCanvas');
@@ -1186,14 +1188,17 @@
   slideCanvas.addEventListener('pointerup', endPanDrag);
   slideCanvas.addEventListener('pointercancel', endPanDrag);
 
-  removeSlideBtn.addEventListener('click', () => {
+  function removeActiveSlide() {
     if (currentDraft.slides.length <= 1) { alert('Draf mesti ada sekurang-kurangnya 1 slide.'); return; }
     const [removed] = currentDraft.slides.splice(activeSlideIndex, 1);
     if (removed.image) supabase.storage.from('tiktok-slide-images').remove([removed.image]).catch(() => {});
     activeSlideIndex = Math.max(0, activeSlideIndex - 1);
     renderSlideTabs();
     loadActiveSlideIntoForm();
-  });
+  }
+
+  removeSlideBtn.addEventListener('click', removeActiveSlide);
+  removeSlideBtnTop.addEventListener('click', removeActiveSlide);
 
   let fontsLoadedPromise = null;
   function ensureFontsLoaded() {
