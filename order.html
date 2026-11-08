@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tempah Bookmark — illham</title>
+  <title>Tempah Penanda Buku — illham</title>
   <link rel="icon" type="image/png" href="favicon.png?v=3"/>
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
@@ -147,8 +147,8 @@
 
 <div class="card">
   <div id="formView">
-    <div class="kicker"><span></span>Custom Order</div>
-    <h1>Tempah bookmark <em>anda sendiri.</em></h1>
+    <div class="kicker"><span></span>Tempahan Khas</div>
+    <h1>Tempah penanda buku <em>anda sendiri.</em></h1>
     <p class="lede">Jawab beberapa soalan ringkas dan muat naik gambar rujukan untuk lukisan anda. Kami akan hubungi anda melalui WhatsApp/emel untuk pengesahan harga dan tarikh siap.</p>
 
     <div class="progress-wrap">
@@ -199,9 +199,9 @@
         <div class="field">
           <label>Jenis Karya</label>
           <div class="chip-group" id="chipGroup">
-            <button type="button" class="chip" data-value="Portrait Bookmark I">Portrait Bookmark I</button>
-            <button type="button" class="chip" data-value="Custom Portrait">Custom Portrait</button>
-            <button type="button" class="chip" data-value="Bookmark Set — Portrait of 4">Bookmark Set — Portrait of 4</button>
+            <button type="button" class="chip" data-value="Penanda Buku Potret I">Penanda Buku Potret I</button>
+            <button type="button" class="chip" data-value="Potret Tempahan Khas">Potret Tempahan Khas</button>
+            <button type="button" class="chip" data-value="Set Penanda Buku — Potret Empat Wajah">Set Penanda Buku — Potret Empat Wajah</button>
             <button type="button" class="chip" data-value="Lukis Sahaja">Lukis Sahaja</button>
           </div>
           <input type="text" id="size" name="size" placeholder="Atau taip sendiri — cth: saiz, kuantiti, butiran lain"/>
@@ -318,9 +318,14 @@
       if (!v) { showError('Sila isi alamat penghantaran.'); return false; }
     } else if (n === 5) {
       const file = fileInput.files[0];
-      if (!file) { showError('Sila pilih gambar rujukan.'); return false; }
-      if (!file.type.startsWith('image/')) { showError('Fail mesti gambar (JPG/PNG/WebP dll).'); return false; }
-      if (file.size > MAX_FILE_BYTES) { showError('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.'); return false; }
+      const photoRequired = sizeInput.value.trim() !== 'Lukis Sahaja';
+      if (photoRequired) {
+        if (!file) { showError('Sila pilih gambar rujukan.'); return false; }
+      }
+      if (file) {
+        if (!file.type.startsWith('image/')) { showError('Fail mesti gambar (JPG/PNG/WebP dll).'); return false; }
+        if (file.size > MAX_FILE_BYTES) { showError('Saiz gambar terlalu besar. Sila pilih gambar bawah 8MB.'); return false; }
+      }
     }
     return true;
   }
@@ -358,16 +363,19 @@
     nextBtn.textContent = 'Menghantar...';
 
     try {
-      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-      const path = `${crypto.randomUUID()}.${ext}`;
+      let path = null;
+      if (file) {
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+        path = `${crypto.randomUUID()}.${ext}`;
 
-      const { error: uploadError } = await supabase
-        .storage
-        .from('reference-photos')
-        .upload(path, file, { contentType: file.type, upsert: false });
+        const { error: uploadError } = await supabase
+          .storage
+          .from('reference-photos')
+          .upload(path, file, { contentType: file.type, upsert: false });
 
-      if (uploadError) {
-        throw new Error('Gagal muat naik gambar. Sila cuba lagi.');
+        if (uploadError) {
+          throw new Error('Gagal muat naik gambar. Sila cuba lagi.');
+        }
       }
 
       const { data, error: rpcError } = await supabase.rpc('submit_order', {
@@ -380,7 +388,7 @@
       });
 
       if (rpcError) {
-        await supabase.storage.from('reference-photos').remove([path]);
+        if (path) await supabase.storage.from('reference-photos').remove([path]);
         throw new Error('Gagal hantar tempahan. Sila cuba lagi sebentar.');
       }
 
