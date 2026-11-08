@@ -258,6 +258,8 @@
       border:1px solid var(--light); border-radius:6px; padding:.4rem .8rem; cursor:pointer;
     }
     .slide-tab.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .slide-tab-add { border-style:dashed; color: var(--charcoal); }
+    .slide-tab-add:hover { border-color: var(--mauve); background: var(--light); }
     .slide-canvas-wrap { max-width: 260px; margin: 0 auto 1.2rem; }
     .slide-canvas-wrap canvas { width:100%; height:auto; display:block; border:1px solid var(--light); border-radius:4px; background: var(--light); }
     .slide-workspace .hint { font-size:.74rem; color: var(--mid); font-weight:300; margin-top:.6rem; }
@@ -481,7 +483,6 @@
               </div>
             </div>
             <div class="row-actions">
-              <button type="button" class="btn-outline btn-small" id="addSlideBtn">+ Slide</button>
               <button type="button" class="btn-outline btn-small" id="removeSlideBtn">Padam Slide Ini</button>
               <button type="button" class="btn btn-small" id="downloadSlideBtn">Muat Turun PNG</button>
               <button type="button" class="btn-outline btn-small" id="downloadAllBtn">Muat Turun Semua</button>
@@ -579,7 +580,6 @@
   const slidePanHint = document.getElementById('slidePanHint');
   const slideBgField = document.getElementById('slideBgField');
   const slideBgPicker = document.getElementById('slideBgPicker');
-  const addSlideBtn = document.getElementById('addSlideBtn');
   const removeSlideBtn = document.getElementById('removeSlideBtn');
   const downloadSlideBtn = document.getElementById('downloadSlideBtn');
   const downloadAllBtn = document.getElementById('downloadAllBtn');
@@ -1021,8 +1021,8 @@
   function renderSlideTabs() {
     slideTabs.innerHTML = currentDraft.slides.map((s, i) =>
       `<button type="button" class="slide-tab ${i === activeSlideIndex ? 'active' : ''}" data-idx="${i}">Slide ${i + 1}</button>`
-    ).join('');
-    slideTabs.querySelectorAll('.slide-tab').forEach(btn => {
+    ).join('') + '<button type="button" class="slide-tab slide-tab-add" id="addSlideTabBtn" title="Tambah slide baru">+ Slide</button>';
+    slideTabs.querySelectorAll('.slide-tab[data-idx]').forEach(btn => {
       btn.addEventListener('click', () => {
         saveActiveSlideFromForm();
         activeSlideIndex = Number(btn.dataset.idx);
@@ -1030,6 +1030,15 @@
         loadActiveSlideIntoForm();
       });
     });
+    document.getElementById('addSlideTabBtn').addEventListener('click', addNewSlide);
+  }
+
+  function addNewSlide() {
+    saveActiveSlideFromForm();
+    currentDraft.slides.push({ text: '', bg: 'white' });
+    activeSlideIndex = currentDraft.slides.length - 1;
+    renderSlideTabs();
+    loadActiveSlideIntoForm();
   }
 
   function loadActiveSlideIntoForm() {
@@ -1174,14 +1183,6 @@
   function endPanDrag() { panDrag = null; slideCanvas.classList.remove('dragging'); }
   slideCanvas.addEventListener('pointerup', endPanDrag);
   slideCanvas.addEventListener('pointercancel', endPanDrag);
-
-  addSlideBtn.addEventListener('click', () => {
-    saveActiveSlideFromForm();
-    currentDraft.slides.push({ text: '', bg: 'white' });
-    activeSlideIndex = currentDraft.slides.length - 1;
-    renderSlideTabs();
-    loadActiveSlideIntoForm();
-  });
 
   removeSlideBtn.addEventListener('click', () => {
     if (currentDraft.slides.length <= 1) { alert('Draf mesti ada sekurang-kurangnya 1 slide.'); return; }
