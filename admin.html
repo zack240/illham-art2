@@ -435,6 +435,7 @@
         </div>
         <div class="row-actions" style="margin-bottom:1.5rem">
           <button type="button" class="btn-outline btn-small" id="copyCaptionBtn">Salin Caption + Hashtag</button>
+          <button type="button" class="btn btn-small" id="saveDraftBtnTop" style="margin-left:auto">Simpan Draf</button>
         </div>
 
         <div class="tiktok-editor-grid">
@@ -563,6 +564,7 @@
   const draftCaption = document.getElementById('draftCaption');
   const draftHashtags = document.getElementById('draftHashtags');
   const copyCaptionBtn = document.getElementById('copyCaptionBtn');
+  const saveDraftBtnTop = document.getElementById('saveDraftBtnTop');
   const wordBankPanel = document.getElementById('wordBankPanel');
   const slideTabs = document.getElementById('slideTabs');
   const slideCanvas = document.getElementById('slideCanvas');
@@ -1470,7 +1472,7 @@
     }
   });
 
-  saveDraftBtn.addEventListener('click', async () => {
+  async function saveDraft() {
     saveActiveSlideFromForm();
     const payload = {
       title: draftTitle.value.trim() || '(Tiada tajuk)',
@@ -1480,8 +1482,7 @@
       hashtags: draftHashtags.value.trim() || null,
       slides: currentDraft.slides,
     };
-    saveDraftBtn.disabled = true;
-    saveDraftBtn.textContent = 'Menyimpan...';
+    [saveDraftBtn, saveDraftBtnTop].forEach(b => { b.disabled = true; b.textContent = 'Menyimpan...'; });
     let error;
     if (currentDraft.id) {
       ({ error } = await supabase.from('tiktok_drafts').update(payload).eq('id', currentDraft.id));
@@ -1489,8 +1490,7 @@
       payload.display_order = tiktokDrafts.length;
       ({ error } = await supabase.from('tiktok_drafts').insert(payload));
     }
-    saveDraftBtn.disabled = false;
-    saveDraftBtn.textContent = 'Simpan Draf';
+    [saveDraftBtn, saveDraftBtnTop].forEach(b => { b.disabled = false; b.textContent = 'Simpan Draf'; });
     if (error) {
       alert('Gagal simpan: ' + error.message);
       return;
@@ -1498,7 +1498,10 @@
     tiktokEditor.style.display = 'none';
     currentDraft = null;
     await loadTiktokDrafts();
-  });
+  }
+
+  saveDraftBtn.addEventListener('click', saveDraft);
+  saveDraftBtnTop.addEventListener('click', saveDraft);
 
   deleteDraftBtn.addEventListener('click', async () => {
     if (!currentDraft.id) {
