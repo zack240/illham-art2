@@ -215,6 +215,56 @@
     .settings-card h2 { font-family:'Playfair Display', serif; font-weight:400; font-size:1.25rem; margin-bottom:.6rem; }
     .settings-card .sub { font-size:.82rem; color: var(--mid); margin-bottom: 1.3rem; }
 
+    /* DRAF TIKTOK */
+    .tiktok-draft-card {
+      background: var(--white); border: 1px solid var(--light); padding: 1rem 1.4rem; margin-bottom: .8rem;
+      display:flex; justify-content:space-between; align-items:center; gap: 1rem; flex-wrap: wrap; cursor:pointer;
+      transition: border-color .2s;
+    }
+    .tiktok-draft-card:hover { border-color: var(--mauve); }
+    .tiktok-draft-card .tdc-title { font-family:'Playfair Display', serif; font-size:1.05rem; color: var(--ink); }
+    .tiktok-draft-card .tdc-meta { font-size:.76rem; color: var(--mid); margin-top:.2rem; }
+    .tiktok-status-badge { font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; border-radius:12px; padding:.25rem .7rem; white-space:nowrap; }
+    .tiktok-status-badge.draf { background: var(--light); color: var(--mid); }
+    .tiktok-status-badge.siap { background:#DCE8DC; color: var(--ok); }
+    .tiktok-status-badge.posted { background: var(--ink); color: var(--white); }
+    .tiktok-tab {
+      font-family:'DM Sans', sans-serif; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color: var(--mid);
+      background: var(--white); border:1px solid var(--light); border-radius:20px; padding:.55rem 1.1rem; cursor:pointer;
+    }
+    .tiktok-tab.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+    .chip-group { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .chip {
+      font-family:'DM Sans', sans-serif; font-size:.74rem; color: var(--charcoal); background: var(--white);
+      border:1px solid var(--light); border-radius:16px; padding:.5rem .9rem; cursor:pointer; transition: border-color .2s, background .2s, color .2s;
+    }
+    .chip:hover { border-color: var(--mauve); }
+    .chip.is-active { background: var(--ink); border-color: var(--ink); color: var(--white); }
+
+    .tiktok-editor { margin-top: 2rem; border-top: 1px solid var(--light); padding-top: 2rem; }
+    .tiktok-editor-grid { display:grid; grid-template-columns: 220px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .word-bank-panel { display:flex; flex-direction:column; gap: 1.2rem; }
+    .word-bank-cat h5 { font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color: var(--mid); margin-bottom:.5rem; }
+    .word-chip {
+      display:block; width:100%; text-align:left; font-family:'DM Sans', sans-serif; font-size:.76rem; color: var(--charcoal);
+      background: var(--white); border:1px solid var(--light); border-radius:6px; padding:.5rem .7rem; margin-bottom:.4rem; cursor:pointer;
+    }
+    .word-chip:hover { border-color: var(--mauve); background: var(--light); }
+
+    .slide-tabs { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom: 1rem; }
+    .slide-tab {
+      font-family:'DM Sans', sans-serif; font-size:.72rem; color: var(--mid); background: var(--white);
+      border:1px solid var(--light); border-radius:6px; padding:.4rem .8rem; cursor:pointer;
+    }
+    .slide-tab.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .slide-canvas-wrap { max-width: 260px; margin: 0 auto 1.2rem; }
+    .slide-canvas-wrap canvas { width:100%; height:auto; display:block; border:1px solid var(--light); border-radius:4px; background: var(--light); }
+
+    @media (max-width: 760px) {
+      .tiktok-editor-grid { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 760px) {
       .order-card { grid-template-columns: 1fr; }
       .order-left { border-right:none; border-bottom:1px solid var(--light); }
@@ -272,6 +322,7 @@
     <button class="navlink" data-section="pelanggan">Pelanggan</button>
     <button class="navlink" data-section="kewangan">Kewangan</button>
     <button class="navlink" data-section="karya">Karya</button>
+    <button class="navlink" data-section="tiktok">Draf TikTok</button>
     <button class="navlink" data-section="tetapan">Tetapan</button>
   </nav>
   <main>
@@ -332,6 +383,83 @@
       <div id="galleryItemsList" class="gallery-admin-grid"></div>
     </section>
 
+    <section id="section-tiktok" class="section" style="display:none">
+      <div class="toolbar">
+        <button class="tiktok-tab active" data-tiktok-filter="all">Semua</button>
+        <button class="tiktok-tab" data-tiktok-filter="draf">Draf</button>
+        <button class="tiktok-tab" data-tiktok-filter="siap">Siap</button>
+        <button class="tiktok-tab" data-tiktok-filter="posted">Posted</button>
+        <button class="btn btn-small" id="newDraftBtn" style="margin-left:auto">+ Draf Baru</button>
+      </div>
+      <div id="tiktokList"></div>
+
+      <div id="tiktokEditor" class="tiktok-editor" style="display:none">
+        <div class="field">
+          <label for="draftTitle">Tajuk Draf (untuk rujukan dalaman sahaja)</label>
+          <input type="text" id="draftTitle" placeholder="cth: Proses melukis potret kucing"/>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="draftStatus">Status</label>
+            <select id="draftStatus">
+              <option value="draf">Draf</option>
+              <option value="siap">Siap</option>
+              <option value="posted">Posted</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="draftDate">Tarikh Dijadualkan</label>
+            <input type="date" id="draftDate"/>
+          </div>
+        </div>
+        <div class="field">
+          <label for="draftCaption">Caption</label>
+          <textarea id="draftCaption" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label for="draftHashtags">Hashtag</label>
+          <input type="text" id="draftHashtags" placeholder="#illhamart #bookmarklukisan ..."/>
+        </div>
+        <div class="row-actions" style="margin-bottom:1.5rem">
+          <button type="button" class="btn-outline btn-small" id="copyCaptionBtn">Salin Caption + Hashtag</button>
+        </div>
+
+        <div class="tiktok-editor-grid">
+          <div class="word-bank-panel" id="wordBankPanel"></div>
+          <div class="slide-workspace">
+            <div class="slide-tabs" id="slideTabs"></div>
+            <div class="slide-canvas-wrap">
+              <canvas id="slideCanvas" width="720" height="1280"></canvas>
+            </div>
+            <div class="field">
+              <label for="activeSlideText">Teks Slide (klik cadangan kata di kiri untuk insert, atau taip custom)</label>
+              <textarea id="activeSlideText" rows="4"></textarea>
+            </div>
+            <div class="field">
+              <label>Latar Belakang</label>
+              <div class="chip-group" id="slideBgPicker">
+                <button type="button" class="chip" data-bg="cream">Cream</button>
+                <button type="button" class="chip" data-bg="blush">Blush</button>
+                <button type="button" class="chip" data-bg="mauve">Mauve</button>
+                <button type="button" class="chip" data-bg="ink">Ink (Gelap)</button>
+              </div>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn-outline btn-small" id="addSlideBtn">+ Slide</button>
+              <button type="button" class="btn-outline btn-small" id="removeSlideBtn">Padam Slide Ini</button>
+              <button type="button" class="btn btn-small" id="downloadSlideBtn">Muat Turun PNG</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-actions" style="margin-top:1.8rem">
+          <button type="button" class="btn" id="saveDraftBtn">Simpan Draf</button>
+          <button type="button" class="btn-outline" id="cancelEditBtn">Batal</button>
+          <button type="button" class="btn-outline btn-small" id="deleteDraftBtn" style="border-color:var(--error);color:var(--error);margin-left:auto">Padam Draf</button>
+        </div>
+      </div>
+    </section>
+
     <section id="section-tetapan" class="section" style="display:none">
       <div class="settings-card">
         <h2>Keselamatan</h2>
@@ -387,6 +515,26 @@
   const galleryCategory = document.getElementById('galleryCategory');
   const galleryImage = document.getElementById('galleryImage');
   const galleryItemsList = document.getElementById('galleryItemsList');
+  const tiktokList = document.getElementById('tiktokList');
+  const tiktokEditor = document.getElementById('tiktokEditor');
+  const newDraftBtn = document.getElementById('newDraftBtn');
+  const draftTitle = document.getElementById('draftTitle');
+  const draftStatus = document.getElementById('draftStatus');
+  const draftDate = document.getElementById('draftDate');
+  const draftCaption = document.getElementById('draftCaption');
+  const draftHashtags = document.getElementById('draftHashtags');
+  const copyCaptionBtn = document.getElementById('copyCaptionBtn');
+  const wordBankPanel = document.getElementById('wordBankPanel');
+  const slideTabs = document.getElementById('slideTabs');
+  const slideCanvas = document.getElementById('slideCanvas');
+  const activeSlideText = document.getElementById('activeSlideText');
+  const slideBgPicker = document.getElementById('slideBgPicker');
+  const addSlideBtn = document.getElementById('addSlideBtn');
+  const removeSlideBtn = document.getElementById('removeSlideBtn');
+  const downloadSlideBtn = document.getElementById('downloadSlideBtn');
+  const saveDraftBtn = document.getElementById('saveDraftBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  const deleteDraftBtn = document.getElementById('deleteDraftBtn');
 
   const GALLERY_CATEGORY_LABELS = { bookmark: 'Penanda Buku', portrait: 'Potret', gift_set: 'Set Hadiah' };
 
@@ -582,12 +730,18 @@
     loadOrders();
   }
 
+  let tiktokLoaded = false;
   navLinks.forEach(link => {
     link.addEventListener('click', () => {
       navLinks.forEach(l => l.classList.remove('active'));
       link.classList.add('active');
       const target = link.dataset.section;
       document.querySelectorAll('.section').forEach(s => s.style.display = s.id === `section-${target}` ? 'block' : 'none');
+      if (target === 'tiktok' && !tiktokLoaded) {
+        tiktokLoaded = true;
+        loadTiktokDrafts();
+        loadWordBank();
+      }
     });
   });
 
@@ -730,6 +884,341 @@
     galleryUploadMsg.classList.add('ok');
     await loadGalleryItems();
   });
+
+  // ===== DRAF TIKTOK =====
+  const TIKTOK_STATUS_LABELS = { draf: 'Draf', siap: 'Siap', posted: 'Posted' };
+  const WORD_CATEGORY_LABELS = { hook: 'Hook (Pembuka)', cta: 'CTA (Ajakan)', opener: 'Caption Opener', hashtag: 'Hashtag' };
+  const BG_PRESETS = {
+    cream: { bg: '#F5F0E8', text: '#2C2420' },
+    blush: { bg: '#E8D5C4', text: '#2C2420' },
+    mauve: { bg: '#C4B0B8', text: '#2C2420' },
+    ink:   { bg: '#2C2420', text: '#FAF8F5' },
+  };
+
+  let tiktokDrafts = [];
+  let tiktokFilter = 'all';
+  let currentDraft = null;
+  let activeSlideIndex = 0;
+  let wordBank = [];
+
+  async function loadTiktokDrafts() {
+    tiktokList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Memuatkan...</p>';
+    const { data, error } = await supabase.from('tiktok_drafts').select('*').order('display_order', { ascending: true });
+    if (error) {
+      tiktokList.innerHTML = `<p style="color:var(--error);font-size:.85rem;">Gagal muat draf: ${escapeHtml(error.message)}</p>`;
+      return;
+    }
+    tiktokDrafts = data || [];
+    renderTiktokList();
+  }
+
+  function renderTiktokList() {
+    const filtered = tiktokFilter === 'all' ? tiktokDrafts : tiktokDrafts.filter(d => d.status === tiktokFilter);
+    if (!filtered.length) {
+      tiktokList.innerHTML = '<p style="color:var(--mid);font-size:.85rem;">Tiada draf lagi. Klik "+ Draf Baru" untuk mula.</p>';
+      return;
+    }
+    tiktokList.innerHTML = filtered.map(d => `
+      <div class="tiktok-draft-card" data-id="${d.id}">
+        <div>
+          <div class="tdc-title">${escapeHtml(d.title || '(tiada tajuk)')}</div>
+          <div class="tdc-meta">${(d.slides || []).length} slide${d.scheduled_date ? ' · ' + new Date(d.scheduled_date).toLocaleDateString('ms-MY') : ''}</div>
+        </div>
+        <span class="tiktok-status-badge ${d.status}">${TIKTOK_STATUS_LABELS[d.status] || d.status}</span>
+      </div>
+    `).join('');
+    tiktokList.querySelectorAll('.tiktok-draft-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const draft = tiktokDrafts.find(d => d.id === card.dataset.id);
+        if (draft) openDraftEditor(draft);
+      });
+    });
+  }
+
+  document.querySelectorAll('[data-tiktok-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-tiktok-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tiktokFilter = btn.dataset.tiktokFilter;
+      renderTiktokList();
+    });
+  });
+
+  function blankDraft() {
+    return {
+      id: null, title: '', status: 'draf', scheduled_date: null,
+      caption: '', hashtags: '', slides: [{ text: '', bg: 'cream' }],
+    };
+  }
+
+  function openDraftEditor(draft) {
+    currentDraft = JSON.parse(JSON.stringify(draft));
+    if (!currentDraft.slides || !currentDraft.slides.length) currentDraft.slides = [{ text: '', bg: 'cream' }];
+    activeSlideIndex = 0;
+    draftTitle.value = currentDraft.title || '';
+    draftStatus.value = currentDraft.status || 'draf';
+    draftDate.value = currentDraft.scheduled_date || '';
+    draftCaption.value = currentDraft.caption || '';
+    draftHashtags.value = currentDraft.hashtags || '';
+    tiktokEditor.style.display = 'block';
+    tiktokEditor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    renderSlideTabs();
+    loadActiveSlideIntoForm();
+  }
+
+  function renderSlideTabs() {
+    slideTabs.innerHTML = currentDraft.slides.map((s, i) =>
+      `<button type="button" class="slide-tab ${i === activeSlideIndex ? 'active' : ''}" data-idx="${i}">Slide ${i + 1}</button>`
+    ).join('');
+    slideTabs.querySelectorAll('.slide-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        saveActiveSlideFromForm();
+        activeSlideIndex = Number(btn.dataset.idx);
+        renderSlideTabs();
+        loadActiveSlideIntoForm();
+      });
+    });
+  }
+
+  function loadActiveSlideIntoForm() {
+    const slide = currentDraft.slides[activeSlideIndex];
+    activeSlideText.value = slide.text || '';
+    slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c.dataset.bg === (slide.bg || 'cream')));
+    drawSlideCanvas(slide);
+  }
+
+  function saveActiveSlideFromForm() {
+    if (!currentDraft || !currentDraft.slides[activeSlideIndex]) return;
+    currentDraft.slides[activeSlideIndex].text = activeSlideText.value;
+  }
+
+  activeSlideText.addEventListener('input', () => {
+    saveActiveSlideFromForm();
+    drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
+  });
+
+  slideBgPicker.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip || !currentDraft) return;
+    currentDraft.slides[activeSlideIndex].bg = chip.dataset.bg;
+    slideBgPicker.querySelectorAll('.chip').forEach(c => c.classList.toggle('is-active', c === chip));
+    drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
+  });
+
+  addSlideBtn.addEventListener('click', () => {
+    saveActiveSlideFromForm();
+    currentDraft.slides.push({ text: '', bg: 'cream' });
+    activeSlideIndex = currentDraft.slides.length - 1;
+    renderSlideTabs();
+    loadActiveSlideIntoForm();
+  });
+
+  removeSlideBtn.addEventListener('click', () => {
+    if (currentDraft.slides.length <= 1) { alert('Draf mesti ada sekurang-kurangnya 1 slide.'); return; }
+    currentDraft.slides.splice(activeSlideIndex, 1);
+    activeSlideIndex = Math.max(0, activeSlideIndex - 1);
+    renderSlideTabs();
+    loadActiveSlideIntoForm();
+  });
+
+  let fontsLoadedPromise = null;
+  function ensureFontsLoaded() {
+    if (!fontsLoadedPromise) {
+      fontsLoadedPromise = Promise.all([
+        document.fonts.load('italic 700 58px "Playfair Display"'),
+        document.fonts.load('400 28px "DM Sans"'),
+      ]).catch(() => {});
+    }
+    return fontsLoadedPromise;
+  }
+
+  const logoImg = new Image();
+  logoImg.src = 'illham-logo.png?v=2';
+  const logoReady = new Promise(resolve => {
+    logoImg.onload = () => resolve(true);
+    logoImg.onerror = () => resolve(false);
+  });
+
+  function wrapCanvasText(ctx, text, maxWidth) {
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines = [];
+    let line = '';
+    words.forEach(word => {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    return lines.slice(0, 7);
+  }
+
+  function drawInvertedLogo(ctx, x, y, w, h) {
+    const off = document.createElement('canvas');
+    off.width = logoImg.naturalWidth;
+    off.height = logoImg.naturalHeight;
+    const octx = off.getContext('2d');
+    octx.drawImage(logoImg, 0, 0);
+    const imgData = octx.getImageData(0, 0, off.width, off.height);
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
+    }
+    octx.putImageData(imgData, 0, 0);
+    ctx.drawImage(off, x, y, w, h);
+  }
+
+  async function drawSlideCanvas(slide) {
+    await ensureFontsLoaded();
+    await logoReady;
+    const ctx = slideCanvas.getContext('2d');
+    const W = slideCanvas.width, H = slideCanvas.height;
+    const preset = BG_PRESETS[slide.bg || 'cream'];
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = preset.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const text = (slide.text || '').trim() || 'Teks slide anda di sini';
+    ctx.fillStyle = preset.text;
+    ctx.font = 'italic 700 58px "Playfair Display", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const maxWidth = W - 140;
+    const lines = wrapCanvasText(ctx, text, maxWidth);
+    const lineHeight = 72;
+    const totalHeight = lines.length * lineHeight;
+    let y = H / 2 - totalHeight / 2 + lineHeight / 2;
+    lines.forEach(line => {
+      ctx.fillText(line, W / 2, y);
+      y += lineHeight;
+    });
+
+    if (logoImg.naturalWidth) {
+      const logoW = 160;
+      const logoH = logoW * (logoImg.naturalHeight / logoImg.naturalWidth);
+      ctx.globalAlpha = 0.88;
+      if (slide.bg === 'ink') {
+        drawInvertedLogo(ctx, (W - logoW) / 2, H - logoH - 70, logoW, logoH);
+      } else {
+        ctx.drawImage(logoImg, (W - logoW) / 2, H - logoH - 70, logoW, logoH);
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  downloadSlideBtn.addEventListener('click', () => {
+    saveActiveSlideFromForm();
+    slideCanvas.toBlob(blob => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = (currentDraft.title || 'draf-tiktok').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'draf-tiktok';
+      a.href = url;
+      a.download = `${safeName}-slide-${activeSlideIndex + 1}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  });
+
+  newDraftBtn.addEventListener('click', () => openDraftEditor(blankDraft()));
+
+  cancelEditBtn.addEventListener('click', () => {
+    tiktokEditor.style.display = 'none';
+    currentDraft = null;
+  });
+
+  copyCaptionBtn.addEventListener('click', async () => {
+    const text = [draftCaption.value.trim(), draftHashtags.value.trim()].filter(Boolean).join('\n\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      copyCaptionBtn.textContent = 'Disalin!';
+      setTimeout(() => { copyCaptionBtn.textContent = 'Salin Caption + Hashtag'; }, 1500);
+    } catch {
+      alert('Gagal salin — sila salin manual dari field di atas.');
+    }
+  });
+
+  saveDraftBtn.addEventListener('click', async () => {
+    saveActiveSlideFromForm();
+    const payload = {
+      title: draftTitle.value.trim() || '(Tiada tajuk)',
+      status: draftStatus.value,
+      scheduled_date: draftDate.value || null,
+      caption: draftCaption.value.trim() || null,
+      hashtags: draftHashtags.value.trim() || null,
+      slides: currentDraft.slides,
+    };
+    saveDraftBtn.disabled = true;
+    saveDraftBtn.textContent = 'Menyimpan...';
+    let error;
+    if (currentDraft.id) {
+      ({ error } = await supabase.from('tiktok_drafts').update(payload).eq('id', currentDraft.id));
+    } else {
+      payload.display_order = tiktokDrafts.length;
+      ({ error } = await supabase.from('tiktok_drafts').insert(payload));
+    }
+    saveDraftBtn.disabled = false;
+    saveDraftBtn.textContent = 'Simpan Draf';
+    if (error) {
+      alert('Gagal simpan: ' + error.message);
+      return;
+    }
+    tiktokEditor.style.display = 'none';
+    currentDraft = null;
+    await loadTiktokDrafts();
+  });
+
+  deleteDraftBtn.addEventListener('click', async () => {
+    if (!currentDraft.id) {
+      tiktokEditor.style.display = 'none';
+      currentDraft = null;
+      return;
+    }
+    if (!confirm(`Padam draf "${currentDraft.title}"? Tindakan ini tidak boleh dibatalkan.`)) return;
+    const { error } = await supabase.from('tiktok_drafts').delete().eq('id', currentDraft.id);
+    if (error) {
+      alert('Gagal padam: ' + error.message);
+      return;
+    }
+    tiktokEditor.style.display = 'none';
+    currentDraft = null;
+    await loadTiktokDrafts();
+  });
+
+  async function loadWordBank() {
+    const { data, error } = await supabase.from('word_bank').select('*').order('category').order('display_order');
+    if (error) {
+      wordBankPanel.innerHTML = `<p style="color:var(--error);font-size:.8rem;">Gagal muat bank kata: ${escapeHtml(error.message)}</p>`;
+      return;
+    }
+    wordBank = data || [];
+    renderWordBank();
+  }
+
+  function renderWordBank() {
+    const byCategory = {};
+    wordBank.forEach(w => { (byCategory[w.category] ??= []).push(w); });
+    const order = ['hook', 'opener', 'cta', 'hashtag'];
+    wordBankPanel.innerHTML = order.filter(cat => byCategory[cat]?.length).map(cat => `
+      <div class="word-bank-cat">
+        <h5>${WORD_CATEGORY_LABELS[cat] || cat}</h5>
+        ${byCategory[cat].map(w => `<button type="button" class="word-chip" data-text="${escapeHtml(w.text)}">${escapeHtml(w.text)}</button>`).join('')}
+      </div>
+    `).join('') || '<p style="color:var(--mid);font-size:.8rem;">Tiada bank kata lagi.</p>';
+    wordBankPanel.querySelectorAll('.word-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (!currentDraft) return;
+        const current = activeSlideText.value.trim();
+        activeSlideText.value = current ? current + '\n' + chip.dataset.text : chip.dataset.text;
+        saveActiveSlideFromForm();
+        drawSlideCanvas(currentDraft.slides[activeSlideIndex]);
+      });
+    });
+  }
 
   function fmtRM(n) {
     return 'RM ' + (n ?? 0).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
