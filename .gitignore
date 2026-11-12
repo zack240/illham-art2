@@ -4,6 +4,7 @@ supabase_details.txt
 .env.*
 .netlify/
 supabase/.temp/
+CLAUDE.local.md
 
 # OS / editor
 .DS_Store
