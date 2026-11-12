@@ -283,6 +283,71 @@
       .order-left { border-right:none; border-bottom:1px solid var(--light); }
       .grid-2 { grid-template-columns: 1fr; }
     }
+
+    /* SEBUT HARGA */
+    .quote-grid { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.05fr); gap: 1.6rem; align-items:start; }
+    .quote-form { background: var(--white); border:1px solid var(--light); padding: 1.4rem 1.5rem; }
+    .quote-form h3 {
+      font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color: var(--charcoal);
+      margin: 1.4rem 0 .8rem; padding-top: 1.1rem; border-top:1px solid var(--light);
+    }
+    .quote-form h3:first-child { margin-top:0; padding-top:0; border-top:none; }
+    .quote-form .field { margin-bottom: .8rem; }
+    .quote-row2 { display:grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+    .quote-item { border:1px solid var(--light); padding:.7rem; margin-bottom:.6rem; background: var(--cream); }
+    .quote-item-top { display:grid; grid-template-columns: 1fr auto; gap:.5rem; margin-bottom:.5rem; }
+    .quote-item-nums { display:grid; grid-template-columns: 70px 1fr; gap:.5rem; }
+    .quote-item input, .quote-item select { padding:.5rem .6rem; font-size:.8rem; }
+    .quote-item-remove {
+      background:none; border:1px solid var(--light); color: var(--error); border-radius:6px;
+      padding:0 .65rem; cursor:pointer; font-size:.9rem;
+    }
+    .quote-actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.2rem; }
+    .quote-wa-btn { background:#25D366; }
+    .quote-wa-btn:hover:not(:disabled) { background:#1EBE5A; }
+
+    .quote-paper {
+      background:#fff; border:1px solid var(--light); padding: 2.2rem 2rem; color: var(--ink);
+      box-shadow: 0 10px 40px rgba(44,36,32,0.06); position: sticky; top: 90px;
+    }
+    .qp-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1.6rem; }
+    .qp-head img { height: 34px; mix-blend-mode: multiply; }
+    .qp-brand small { display:block; font-size:.72rem; color: var(--mid); margin-top:.35rem; line-height:1.5; }
+    .qp-title { text-align:right; }
+    .qp-title h2 { font-family:'Playfair Display', serif; font-weight:400; font-size:1.5rem; }
+    .qp-title p { font-size:.74rem; color: var(--charcoal); line-height:1.6; }
+    .qp-to { font-size:.8rem; line-height:1.6; margin-bottom:1.4rem; padding:.9rem 1rem; background: var(--cream); }
+    .qp-to b { display:block; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color: var(--mid); font-weight:400; margin-bottom:.2rem; }
+    .qp-table { width:100%; border-collapse:collapse; font-size:.8rem; margin-bottom: 1rem; }
+    .qp-table th {
+      text-align:left; font-weight:400; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase;
+      color: var(--mid); border-bottom:1px solid var(--ink); padding:.5rem .3rem;
+    }
+    .qp-table td { padding:.6rem .3rem; border-bottom:1px solid var(--light); vertical-align:top; }
+    .qp-table .num { text-align:right; white-space:nowrap; }
+    .qp-totals { margin-left:auto; width: min(100%, 260px); font-size:.8rem; }
+    .qp-totals div { display:flex; justify-content:space-between; padding:.3rem 0; }
+    .qp-totals .grand { border-top:1px solid var(--ink); margin-top:.3rem; padding-top:.55rem; font-family:'Playfair Display', serif; font-size:1.1rem; }
+    .qp-totals .dep { color: var(--charcoal); }
+    .qp-notes { margin-top:1.6rem; font-size:.74rem; color: var(--charcoal); line-height:1.65; white-space:pre-wrap; }
+    .qp-notes b { display:block; font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color: var(--mid); font-weight:400; margin-bottom:.3rem; }
+    .qp-foot { margin-top:1.8rem; text-align:center; font-family:'Playfair Display', serif; font-style:italic; font-size:.85rem; color: var(--charcoal); }
+
+    @media (max-width: 860px) {
+      .quote-grid { grid-template-columns: 1fr; }
+      .quote-paper { position: static; padding: 1.5rem 1.1rem; }
+      .qp-head { flex-direction:column; }
+      .qp-title { text-align:left; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background:#fff; }
+      body * { visibility:hidden; }
+      #quotePaper, #quotePaper * { visibility:visible; }
+      #quotePaper { position:absolute; left:0; top:0; width:100%; border:none; box-shadow:none; padding:0; }
+      .qp-to { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 </head>
 <body>
@@ -334,6 +399,7 @@
     <button class="navlink" data-section="tempahan">Semua Tempahan</button>
     <button class="navlink" data-section="pelanggan">Pelanggan</button>
     <button class="navlink" data-section="kewangan">Kewangan</button>
+    <button class="navlink" data-section="sebutharga">Sebut Harga</button>
     <button class="navlink" data-section="karya">Karya</button>
     <button class="navlink" data-section="tiktok">Draf TikTok</button>
     <button class="navlink" data-section="tetapan">Tetapan</button>
@@ -366,6 +432,54 @@
     <section id="section-kewangan" class="section" style="display:none">
       <div class="stats-grid" id="financeStatsGrid"></div>
       <div id="financeList"></div>
+    </section>
+
+    <section id="section-sebutharga" class="section" style="display:none">
+      <div class="quote-grid">
+        <div class="quote-form">
+          <h3>Pelanggan</h3>
+          <div class="field">
+            <label for="qOrderPick">Isi dari tempahan sedia ada (pilihan)</label>
+            <select id="qOrderPick"><option value="">— Pelanggan baru / isi manual —</option></select>
+          </div>
+          <div class="field"><label for="qName">Nama</label><input type="text" id="qName"/></div>
+          <div class="quote-row2">
+            <div class="field"><label for="qPhone">Telefon</label><input type="text" id="qPhone" inputmode="tel"/></div>
+            <div class="field"><label for="qEmail">Emel</label><input type="email" id="qEmail"/></div>
+          </div>
+          <div class="field"><label for="qAddress">Alamat</label><textarea id="qAddress" rows="2"></textarea></div>
+
+          <h3>Butiran Sebut Harga</h3>
+          <div class="quote-row2">
+            <div class="field"><label for="qNo">No. Sebut Harga</label><input type="text" id="qNo"/></div>
+            <div class="field"><label for="qDate">Tarikh</label><input type="date" id="qDate"/></div>
+          </div>
+          <div class="field"><label for="qValidDays">Sah selama (hari)</label><input type="number" id="qValidDays" min="1" value="14"/></div>
+
+          <h3>Item</h3>
+          <div id="qItems"></div>
+          <button type="button" class="btn-outline btn-small" id="qAddItem">+ Tambah Item</button>
+
+          <h3>Jumlah</h3>
+          <div class="quote-row2">
+            <div class="field"><label for="qShipping">Penghantaran (RM)</label><input type="number" id="qShipping" min="0" step="0.01" value="0"/></div>
+            <div class="field"><label for="qDiscount">Diskaun (RM)</label><input type="number" id="qDiscount" min="0" step="0.01" value="0"/></div>
+          </div>
+          <div class="field"><label for="qDepositPct">Deposit (%)</label><input type="number" id="qDepositPct" min="0" max="100" value="50"/></div>
+          <div class="field"><label for="qNotes">Nota &amp; Terma</label><textarea id="qNotes" rows="5"></textarea></div>
+
+          <div id="qMsg" class="msg"></div>
+          <div class="quote-actions">
+            <button type="button" class="btn btn-small" id="qPrint">Cetak / Simpan PDF</button>
+            <button type="button" class="btn btn-small quote-wa-btn" id="qWhatsApp">Hantar WhatsApp</button>
+            <button type="button" class="btn-outline btn-small" id="qCopy">Salin Teks</button>
+            <button type="button" class="btn-outline btn-small" id="qReset">Sebut Harga Baru</button>
+          </div>
+          <p style="font-size:.72rem;color:var(--mid);margin-top:.9rem">Draf disimpan automatik dalam browser ini sahaja (tidak disimpan ke pangkalan data).</p>
+        </div>
+
+        <div class="quote-paper" id="quotePaper"></div>
+      </div>
     </section>
 
     <section id="section-karya" class="section" style="display:none">
@@ -797,6 +911,7 @@
         loadTiktokDrafts();
         loadWordBank();
       }
+      if (target === 'sebutharga') quoteFillOrderPicker();
     });
   });
 
@@ -1921,6 +2036,266 @@
     statusEl.textContent = '';
     window.open(data.signedUrl, '_blank', 'noopener');
   }
+
+  // ===== SEBUT HARGA (frontend sahaja; draf dalam localStorage browser ini) =====
+  const QUOTE_PRESETS = [
+    { label: 'Penanda Buku Potret', price: 25 },
+    { label: 'Potret Tempahan Khas', price: 180 },
+    { label: 'Set Penanda Buku — Potret Empat Wajah', price: 65 },
+  ];
+  const QUOTE_DEFAULT_NOTES = 'Deposit perlu dibayar untuk mula melukis. Baki dibayar sebelum penghantaran.\nTempoh siap akan disahkan selepas deposit diterima.\nHarga belum termasuk perubahan besar selepas lakaran diluluskan.';
+  const QUOTE_STORE_KEY = 'illham_quote_draft_v1';
+  const QUOTE_NOTES_KEY = 'illham_quote_notes_v1';
+  const qEl = id => document.getElementById(id);
+  const qFields = ['qName', 'qPhone', 'qEmail', 'qAddress', 'qNo', 'qDate', 'qValidDays', 'qShipping', 'qDiscount', 'qDepositPct', 'qNotes'];
+  let quoteItems = [];
+
+  function qStoreGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
+  function qStoreSet(key, val) { try { localStorage.setItem(key, val); } catch {} }
+
+  function qTodayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function qNewNumber() {
+    const d = qTodayStr().replace(/-/g, '');
+    const rand = Math.floor(Math.random() * 900 + 100);
+    return `SH-${d}-${rand}`;
+  }
+  function qFmtDate(str) {
+    if (!str) return '—';
+    const d = new Date(str + 'T00:00:00');
+    return isNaN(d) ? '—' : d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  function qNum(v) { const n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; }
+
+  function quoteCalc() {
+    const subtotal = quoteItems.reduce((s, it) => s + qNum(it.qty) * qNum(it.price), 0);
+    const shipping = qNum(qEl('qShipping').value);
+    const discount = qNum(qEl('qDiscount').value);
+    const total = Math.max(0, subtotal + shipping - discount);
+    const pct = Math.min(100, qNum(qEl('qDepositPct').value));
+    const deposit = Math.round(total * pct) / 100;
+    return { subtotal, shipping, discount, total, pct, deposit, balance: total - deposit };
+  }
+
+  function quoteValidUntil() {
+    const base = qEl('qDate').value;
+    if (!base) return '';
+    const d = new Date(base + 'T00:00:00');
+    d.setDate(d.getDate() + (parseInt(qEl('qValidDays').value, 10) || 0));
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function quoteRenderItems() {
+    const presetOpts = QUOTE_PRESETS.map((p, i) => `<option value="${i}">${escapeHtml(p.label)} (RM ${p.price})</option>`).join('');
+    qEl('qItems').innerHTML = quoteItems.map((it, i) => `
+      <div class="quote-item" data-idx="${i}">
+        <div class="quote-item-top">
+          <select data-k="preset" aria-label="Pilih produk">
+            <option value="">Pilih produk…</option>${presetOpts}
+          </select>
+          <button type="button" class="quote-item-remove" data-k="remove" title="Buang item">✕</button>
+        </div>
+        <input type="text" data-k="desc" placeholder="Penerangan item" value="${escapeHtml(it.desc)}" style="margin-bottom:.5rem"/>
+        <div class="quote-item-nums">
+          <input type="number" data-k="qty" min="1" step="1" value="${escapeHtml(String(it.qty))}" aria-label="Kuantiti"/>
+          <input type="number" data-k="price" min="0" step="0.01" value="${escapeHtml(String(it.price))}" placeholder="Harga seunit (RM)" aria-label="Harga seunit"/>
+        </div>
+      </div>`).join('');
+  }
+
+  function quoteRenderPaper() {
+    const c = quoteCalc();
+    const name = qEl('qName').value.trim();
+    const phone = qEl('qPhone').value.trim();
+    const email = qEl('qEmail').value.trim();
+    const addr = qEl('qAddress').value.trim();
+    const rows = quoteItems.filter(it => it.desc.trim() || qNum(it.price)).map(it => `
+      <tr>
+        <td>${escapeHtml(it.desc) || '—'}</td>
+        <td class="num">${qNum(it.qty)}</td>
+        <td class="num">${fmtRM(qNum(it.price))}</td>
+        <td class="num">${fmtRM(qNum(it.qty) * qNum(it.price))}</td>
+      </tr>`).join('') || '<tr><td colspan="4" style="color:var(--mid)">Belum ada item.</td></tr>';
+    const notes = qEl('qNotes').value.trim();
+
+    qEl('quotePaper').innerHTML = `
+      <div class="qp-head">
+        <div class="qp-brand">
+          <img src="illham-logo.png?v=2" alt="illham"/>
+          <small>Lukisan tangan potret &amp; penanda buku<br/>illham.art · WhatsApp 013-728 7182</small>
+        </div>
+        <div class="qp-title">
+          <h2>Sebut Harga</h2>
+          <p>${escapeHtml(qEl('qNo').value) || '—'}<br/>Tarikh: ${qFmtDate(qEl('qDate').value)}<br/>Sah sehingga: ${qFmtDate(quoteValidUntil())}</p>
+        </div>
+      </div>
+      <div class="qp-to">
+        <b>Kepada</b>
+        ${escapeHtml(name) || '<span style="color:var(--mid)">Nama pelanggan</span>'}
+        ${phone ? `<br/>${escapeHtml(phone)}` : ''}${email ? `<br/>${escapeHtml(email)}` : ''}
+        ${addr ? `<br/>${escapeHtml(addr).replace(/\n/g, '<br/>')}` : ''}
+      </div>
+      <table class="qp-table">
+        <thead><tr><th>Item</th><th class="num">Kuantiti</th><th class="num">Harga Seunit</th><th class="num">Jumlah</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="qp-totals">
+        <div><span>Subjumlah</span><span>${fmtRM(c.subtotal)}</span></div>
+        ${c.shipping ? `<div><span>Penghantaran</span><span>${fmtRM(c.shipping)}</span></div>` : ''}
+        ${c.discount ? `<div><span>Diskaun</span><span>− ${fmtRM(c.discount)}</span></div>` : ''}
+        <div class="grand"><span>Jumlah</span><span>${fmtRM(c.total)}</span></div>
+        ${c.pct ? `<div class="dep"><span>Deposit (${c.pct}%)</span><span>${fmtRM(c.deposit)}</span></div>
+        <div class="dep"><span>Baki</span><span>${fmtRM(c.balance)}</span></div>` : ''}
+      </div>
+      ${notes ? `<div class="qp-notes"><b>Nota &amp; Terma</b>${escapeHtml(notes)}</div>` : ''}
+      <div class="qp-foot">Terima kasih kerana memilih illham.</div>`;
+  }
+
+  function quoteText() {
+    const c = quoteCalc();
+    const lines = [
+      `*SEBUT HARGA — illham*`,
+      `No: ${qEl('qNo').value}`,
+      `Tarikh: ${qFmtDate(qEl('qDate').value)} (sah sehingga ${qFmtDate(quoteValidUntil())})`,
+      '',
+      `Kepada: ${qEl('qName').value.trim() || '-'}`,
+      '',
+      ...quoteItems.filter(it => it.desc.trim() || qNum(it.price))
+        .map(it => `• ${it.desc.trim() || 'Item'} — ${qNum(it.qty)} x ${fmtRM(qNum(it.price))} = ${fmtRM(qNum(it.qty) * qNum(it.price))}`),
+      '',
+      `Subjumlah: ${fmtRM(c.subtotal)}`,
+    ];
+    if (c.shipping) lines.push(`Penghantaran: ${fmtRM(c.shipping)}`);
+    if (c.discount) lines.push(`Diskaun: − ${fmtRM(c.discount)}`);
+    lines.push(`*Jumlah: ${fmtRM(c.total)}*`);
+    if (c.pct) lines.push(`Deposit (${c.pct}%): ${fmtRM(c.deposit)}`, `Baki: ${fmtRM(c.balance)}`);
+    const notes = qEl('qNotes').value.trim();
+    if (notes) lines.push('', notes);
+    lines.push('', 'Terima kasih kerana memilih illham 🤍', 'illham.art');
+    return lines.join('\n');
+  }
+
+  function quoteSave() {
+    const data = { items: quoteItems };
+    qFields.forEach(id => { data[id] = qEl(id).value; });
+    qStoreSet(QUOTE_STORE_KEY, JSON.stringify(data));
+    qStoreSet(QUOTE_NOTES_KEY, qEl('qNotes').value);
+  }
+
+  function quoteUpdate() { quoteRenderPaper(); quoteSave(); }
+
+  function quoteResetForm() {
+    ['qName', 'qPhone', 'qEmail', 'qAddress', 'qOrderPick'].forEach(id => { qEl(id).value = ''; });
+    qEl('qNo').value = qNewNumber();
+    qEl('qDate').value = qTodayStr();
+    qEl('qValidDays').value = 14;
+    qEl('qShipping').value = 0;
+    qEl('qDiscount').value = 0;
+    qEl('qDepositPct').value = 50;
+    qEl('qNotes').value = qStoreGet(QUOTE_NOTES_KEY) ?? QUOTE_DEFAULT_NOTES;
+    quoteItems = [{ desc: '', qty: 1, price: '' }];
+    quoteRenderItems();
+    quoteUpdate();
+  }
+
+  function quoteFillOrderPicker() {
+    const sel = qEl('qOrderPick');
+    const current = sel.value;
+    const recent = [...allOrders].filter(o => !o.is_archived).sort((a, b) => (b.queue_number || 0) - (a.queue_number || 0));
+    sel.innerHTML = '<option value="">— Pelanggan baru / isi manual —</option>' + recent.map(o =>
+      `<option value="${escapeHtml(String(o.id))}">No. ${String(o.queue_number).padStart(4, '0')} — ${escapeHtml(o.customer_name)}</option>`
+    ).join('');
+    sel.value = current;
+  }
+
+  function quoteShowMsg(text, kind = 'ok') {
+    const m = qEl('qMsg');
+    m.textContent = text;
+    m.className = 'msg ' + kind;
+    clearTimeout(quoteShowMsg._t);
+    quoteShowMsg._t = setTimeout(() => { m.className = 'msg'; }, 2500);
+  }
+
+  qEl('qOrderPick').addEventListener('change', e => {
+    const o = allOrders.find(x => String(x.id) === e.target.value);
+    if (!o) return;
+    qEl('qName').value = o.customer_name || '';
+    qEl('qPhone').value = o.phone || '';
+    qEl('qEmail').value = o.email || '';
+    qEl('qAddress').value = o.delivery_address || '';
+    if (o.price != null && quoteItems.length === 1 && !quoteItems[0].desc && !quoteItems[0].price) {
+      quoteItems = [{ desc: `Tempahan No. ${String(o.queue_number).padStart(4, '0')}${o.bookmark_size ? ' — ' + o.bookmark_size : ''}`, qty: 1, price: o.price }];
+      quoteRenderItems();
+    }
+    quoteUpdate();
+  });
+
+  qFields.forEach(id => qEl(id).addEventListener('input', quoteUpdate));
+
+  qEl('qItems').addEventListener('input', e => {
+    const row = e.target.closest('.quote-item');
+    const k = e.target.dataset.k;
+    if (!row || !['desc', 'qty', 'price'].includes(k)) return;
+    quoteItems[+row.dataset.idx][k] = e.target.value;
+    quoteUpdate();
+  });
+  qEl('qItems').addEventListener('change', e => {
+    const row = e.target.closest('.quote-item');
+    if (!row || e.target.dataset.k !== 'preset' || e.target.value === '') return;
+    const p = QUOTE_PRESETS[+e.target.value];
+    quoteItems[+row.dataset.idx] = { ...quoteItems[+row.dataset.idx], desc: p.label, price: p.price };
+    quoteRenderItems();
+    quoteUpdate();
+  });
+  qEl('qItems').addEventListener('click', e => {
+    if (e.target.dataset.k !== 'remove') return;
+    const idx = +e.target.closest('.quote-item').dataset.idx;
+    quoteItems.splice(idx, 1);
+    if (!quoteItems.length) quoteItems = [{ desc: '', qty: 1, price: '' }];
+    quoteRenderItems();
+    quoteUpdate();
+  });
+  qEl('qAddItem').addEventListener('click', () => {
+    quoteItems.push({ desc: '', qty: 1, price: '' });
+    quoteRenderItems();
+    quoteUpdate();
+  });
+
+  qEl('qPrint').addEventListener('click', () => {
+    const prevTitle = document.title;
+    document.title = `Sebut Harga ${qEl('qNo').value} ${qEl('qName').value.trim()}`.trim();
+    window.print();
+    document.title = prevTitle;
+  });
+  qEl('qCopy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(quoteText());
+      quoteShowMsg('Teks sebut harga disalin.');
+    } catch {
+      quoteShowMsg('Gagal salin. Cuba lagi.', 'error');
+    }
+  });
+  qEl('qWhatsApp').addEventListener('click', () => {
+    const phone = qEl('qPhone').value.trim();
+    if (!phone) { quoteShowMsg('Isi nombor telefon pelanggan dulu.', 'error'); return; }
+    window.open(`${waLink(phone)}?text=${encodeURIComponent(quoteText())}`, '_blank', 'noopener');
+  });
+  qEl('qReset').addEventListener('click', () => {
+    if (!confirm('Mula sebut harga baru? Draf semasa akan dikosongkan.')) return;
+    quoteResetForm();
+  });
+
+  (function quoteInit() {
+    let saved = null;
+    try { saved = JSON.parse(qStoreGet(QUOTE_STORE_KEY) || 'null'); } catch {}
+    if (!saved) { quoteResetForm(); return; }
+    qFields.forEach(id => { if (saved[id] != null) qEl(id).value = saved[id]; });
+    quoteItems = Array.isArray(saved.items) && saved.items.length ? saved.items : [{ desc: '', qty: 1, price: '' }];
+    quoteRenderItems();
+    quoteRenderPaper();
+  })();
 
   checkSession();
 </script>
