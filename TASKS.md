@@ -14,6 +14,12 @@ Shared progress log between the WFH laptop and the 10camp office PC. Update this
 - (nothing queued)
 
 ## Handoff notes
+- 2026-11-12 (laptop HP → PC office): **Laptop HP ProBook 430 G7 kini device ke-3** (selain PC office & laptop MSI).
+  - Repo di-clone di `C:\Users\zack\Projects\illham-art2`, sama dengan `origin/main` (`9ae72a7`). Tiada perubahan kod dibuat dari HP.
+  - Tools di HP: Git, Node 24, gh CLI, Chrome. Belum ada: VS Code, Python sebenar.
+  - `CLAUDE.local.md` **belum ada** di HP. Bila sempat, salin manual dari PC office (jangan hantar melalui git atau chat).
+  - Draf Threads harian disimpan dalam artifact claude.ai, bukan dalam repo ni. Link ada dalam memori Claude, sengaja tak ditulis sini sebab repo public.
+  - Peringatan: buka `claude` dalam folder repo (bukan Desktop) supaya `CLAUDE.md` dimuatkan.
 - 2026-11-01 (WFH laptop): file created, then rebased on top of 28 commits pushed from elsewhere (likely the office PC) between 2026-08-15 and now that this laptop hadn't pulled yet — this laptop's memory of this repo was stale. Worth re-checking `git log` for real state before assuming where things left off, going forward. Repo now clean, `main` up to date with `origin/main`, last commit `ceec355`.
 
 ## Done (recent)
